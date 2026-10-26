@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Assignment Galaxy | Faculty Dashboard</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+--purple:#7655e8;--pink:#ff76b7;--blue:#65a9ff;
+--cyan:#5de0d0;--yellow:#ffd66b;--green:#25b981;
+--text:#302b4a;--muted:#85829b;--white:#fff;--bg:#f8f7ff
+}
+body{font-family:"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+button,input,select{font:inherit}
+button{cursor:pointer}
+/* SPLASH SCREEN */
+#intro{
+position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;
+align-items:center;justify-content:center;overflow:hidden;
+background:linear-gradient(135deg,#fbe3f3,#e8e5ff,#dff8ff,#fff1cf);
+transition:opacity .8s ease,visibility .8s ease
+}
+#intro.hide{opacity:0;visibility:hidden;pointer-events:none}
+.splash-orb{position:absolute;border-radius:50%;filter:blur(2px);animation:floatOrb 5s ease-in-out infinite}
+.orb-one{width:180px;height:180px;background:#ff9dce77;top:10%;left:8%}
+.orb-two{width:230px;height:230px;background:#a99aff66;right:6%;bottom:8%;animation-delay:1s}
+.orb-three{width:120px;height:120px;background:#6ce9dc77;top:20%;right:20%;animation-delay:2s}
+.splash-logo{
+width:115px;height:115px;border-radius:35px;
+background:linear-gradient(135deg,#a58aff,#ff91c8);display:grid;
+place-items:center;color:white;font-size:55px;
+box-shadow:0 20px 60px #9471e955;
+animation:logoPop 1s ease both,logoFloat 2s 1s ease-in-out infinite;
+position:relative;z-index:2
+}
+.splash-title{
+font-size:clamp(30px,6vw,52px);margin-top:25px;font-weight:900;
+text-align:center;background:linear-gradient(90deg,#7851df,#ef68b0,#4e9ff5);
+-webkit-background-clip:text;background-clip:text;color:transparent;
+animation:fadeUp .8s .2s both;position:relative;z-index:2
+}
+.splash-subtitle{color:#77718e;margin-top:12px;font-size:15px;text-align:center;animation:fadeUp .8s .4s both;position:relative;z-index:2}
+.loading-track{width:210px;height:7px;margin-top:35px;border-radius:20px;background:#ffffffbb;overflow:hidden;animation:fadeUp .8s .5s both;position:relative;z-index:2}
+.loading-bar{width:0;height:100%;border-radius:inherit;background:linear-gradient(90deg,#8e70f4,#ff83bc,#5ccfc6);animation:loading 2.3s ease-in-out forwards}
+.splash-note{margin-top:14px;color:#85809e;font-size:12px;animation:fadeUp .8s .6s both;position:relative;z-index:2}
+.floating-emoji{position:absolute;font-size:30px;animation:emojiFloat 4s ease-in-out infinite;user-select:none}
+.e1{top:17%;left:24%}.e2{top:24%;right:22%;animation-delay:.6s}
+.e3{bottom:23%;left:18%;animation-delay:1s}.e4{bottom:20%;right:19%;animation-delay:1.5s}
+.e5{top:48%;left:8%;animation-delay:.8s}.e6{top:55%;right:8%;animation-delay:1.2s}
+@keyframes loading{from{width:0}to{width:100%}}
+@keyframes logoPop{from{transform:scale(.3) rotate(-20deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+@keyframes logoFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+@keyframes floatOrb{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-25px) scale(1.08)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes emojiFloat{0%,100%{transform:translateY(0) rotate(-8deg)}50%{transform:translateY(-18px) rotate(8deg)}}
+/* MAIN DASHBOARD */
+#app{display:none;min-height:100vh;opacity:0}
+#app.visible{display:block;animation:dashboardEnter .8s ease forwards}
+@keyframes dashboardEnter{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.topbar{
+min-height:82px;padding:17px 5%;display:flex;align-items:center;
+justify-content:space-between;gap:20px;flex-wrap:wrap;
+background:#ffffffd9;backdrop-filter:blur(15px);
+border-bottom:1px solid #ece8fa;position:sticky;top:0;z-index:100
+}
+.brand{display:flex;align-items:center;gap:13px}
+.brand-icon{width:49px;height:49px;display:grid;place-items:center;border-radius:16px;font-size:25px;background:linear-gradient(135deg,#9276f5,#ff92c9);box-shadow:0 7px 20px #9e7bed33}
+.brand h1{font-size:21px;font-weight:850;letter-spacing:-.5px}
+.brand p{font-size:11px;color:var(--muted);margin-top:4px}
+.topbar-right{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.status-pill{display:flex;align-items:center;gap:7px;padding:9px 13px;background:#e8fbf3;color:#16865c;border-radius:30px;font-size:12px;font-weight:700}
+.status-dot{width:7px;height:7px;background:#25b981;border-radius:50%}
+.date-label{color:#77718e;font-size:12px;background:#f5f2ff;padding:10px 13px;border-radius:12px}
+.container{width:min(1450px,92%);margin:30px auto 50px}
+/* HERO */
+.hero{padding:35px;border-radius:28px;background:linear-gradient(115deg,#8b70ed,#b07be9 48%,#f38cbe);color:white;position:relative;overflow:hidden;box-shadow:0 15px 40px #a88be733;margin-bottom:26px}
+.hero::before{content:"";width:250px;height:250px;border-radius:50%;background:#ffffff17;position:absolute;right:12%;top:-120px}
+.hero::after{content:"";width:180px;height:180px;border-radius:50%;background:#ffffff13;position:absolute;right:-40px;bottom:-100px}
+.hero-content{position:relative;z-index:2;max-width:760px}
+.hero-tag{display:inline-block;background:#ffffff2b;border:1px solid #ffffff50;padding:7px 12px;border-radius:30px;font-size:11px;font-weight:700;letter-spacing:.8px;margin-bottom:16px}
+.hero h2{font-size:clamp(25px,4vw,38px);line-height:1.2;font-weight:850}
+.hero p{margin-top:13px;line-height:1.7;color:#fff0ff;font-size:14px;max-width:610px}
+.hero-bottom{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-top:25px}
+.hero-stat{display:flex;align-items:center;gap:10px;font-size:12px;color:white}
+.hero-stat-icon{width:37px;height:37px;border-radius:12px;background:#ffffff28;display:grid;place-items:center;font-size:19px}
+/* HEADINGS */
+.section-heading{display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap;margin:32px 0 17px}
+.section-heading h2{font-size:21px;font-weight:850}
+.section-heading p{color:var(--muted);font-size:12px;margin-top:5px}
+/* FILTERS */
+.filter-panel{background:white;padding:22px;border-radius:22px;border:1px solid #efecfa;box-shadow:0 6px 25px #7664a80a;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:17px;margin-bottom:25px}
+.field label{display:block;font-size:12px;font-weight:750;color:#69647f;margin-bottom:9px}
+.field select,.field input{width:100%;min-height:45px;border:1px solid #e8e4f4;background:#fbfaff;padding:11px 13px;border-radius:12px;color:#39334f;outline:none;transition:.2s}
+.field select:focus,.field input:focus{border-color:#a18af4;box-shadow:0 0 0 3px #a18af422}
+/* STATISTICS */
+.stats-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:17px}
+.stat-card{background:white;border-radius:21px;padding:22px;border:1px solid #efecfa;position:relative;overflow:hidden;transition:transform .25s,box-shadow .25s}
+.stat-card:hover{transform:translateY(-5px);box-shadow:0 14px 35px #7e6bb51a}
+.stat-card::after{content:"";position:absolute;width:90px;height:90px;right:-30px;bottom:-35px;border-radius:50%;background:var(--card-color);opacity:.12}
+.stat-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.stat-icon{width:45px;height:45px;border-radius:15px;display:grid;place-items:center;font-size:22px;background:var(--card-bg)}
+.stat-number{font-size:32px;font-weight:900;margin-top:17px;letter-spacing:-1px}
+.stat-title{color:#817c98;font-size:12px;font-weight:650;margin-top:5px}
+.stat-subtitle{color:#aaa5bb;font-size:10px;margin-top:8px}
+/* PROGRESS */
+.progress-panel{background:white;border:1px solid #efecfa;border-radius:22px;padding:24px;margin-top:20px}
+.progress-top{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
+.progress-top h3{font-size:15px}
+.progress-percent{font-size:23px;font-weight:900;color:#805fe9}
+.progress-track{width:100%;height:12px;background:#f0edf9;border-radius:30px;margin-top:18px;overflow:hidden}
+.progress-fill{height:100%;width:0;border-radius:inherit;background:linear-gradient(90deg,#8e72f1,#ed8cc9,#63d4c7);transition:width .5s ease}
+.progress-caption{font-size:11px;color:#9993ae;margin-top:11px}
+/* SUBJECT CARDS */
+.subject-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:17px}
+.subject-card{background:white;border:1px solid #efecfa;border-radius:21px;padding:21px;position:relative;transition:.25s;overflow:hidden}
+.subject-card:hover{transform:translateY(-4px);box-shadow:0 12px 32px #7765aa14}
+.subject-card.active{border:2px solid #a18af4;box-shadow:0 8px 25px #9478ee18}
+.subject-card-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.subject-icon{width:47px;height:47px;border-radius:15px;display:grid;place-items:center;font-size:23px}
+.subject-number{font-size:10px;color:#9a95ac;background:#f6f3fc;border-radius:20px;padding:6px 9px}
+.subject-card h3{font-size:16px;margin-top:17px;line-height:1.4}
+.subject-teacher{color:#858099;font-size:12px;margin-top:7px}
+.subject-progress{height:6px;background:#f0edf8;border-radius:20px;margin-top:18px;overflow:hidden}
+.subject-progress-fill{height:100%;border-radius:20px;transition:width .4s}
+.subject-footer{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:13px;font-size:11px;color:#8a859e}
+.open-subject{border:0;padding:8px 12px;background:#f0ebff;color:#7655e8;font-size:11px;font-weight:750;border-radius:10px;transition:.2s}
+.open-subject:hover{background:#7655e8;color:white}
+/* TABLE */
+.table-panel{background:white;border:1px solid #efecfa;border-radius:22px;overflow:hidden;margin-top:18px}
+.table-toolbar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:15px;padding:21px;border-bottom:1px solid #f0edf8}
+.table-toolbar h3{font-size:16px}
+.table-toolbar p{color:#9690a9;font-size:11px;margin-top:5px}
+.toolbar-actions{display:flex;gap:9px;flex-wrap:wrap}
+.btn{border:none;border-radius:11px;padding:11px 15px;font-size:11px;font-weight:750;transition:.2s}
+.btn-primary{color:white;background:linear-gradient(135deg,#8d70ed,#b17be9);box-shadow:0 5px 13px #9275ed2b}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 18px #9275ed45}
+.btn-light{background:#f3f0fc;color:#6f5bc1}
+.btn-light:hover{background:#e7e0fc}
+.table-wrap{width:100%;overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:1050px}
+thead{background:#faf8ff}
+th{padding:15px 13px;text-align:left;color:#7c7695;font-size:10px;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+td{padding:14px 13px;border-top:1px solid #f3f0f9;font-size:12px;vertical-align:middle}
+tbody tr{transition:background .2s}
+tbody tr:hover{background:#fcfaff}
+.serial{color:#a19bb5;font-weight:750}
+.roll-number{color:#6e52d4;font-weight:800;white-space:nowrap}
+.student-name{font-weight:700;white-space:nowrap}
+.unit-cell{min-width:135px}
+.unit-button{width:100%;display:flex;align-items:center;justify-content:center;gap:6px;border:1px solid #f2c5d6;background:#fff0f5;color:#d45c85;border-radius:9px;padding:10px 7px;font-size:10px;font-weight:800;transition:.2s}
+.unit-button:hover{transform:scale(1.03)}
+.unit-button.submitted{background:#e5fbf0;color:#159664;border-color:#a8ebcc}
+.unit-date{font-size:10px;text-align:center;color:#16865c;margin-top:7px;min-height:13px;white-space:nowrap}
+.unit-status-label{display:block;text-align:center;margin-top:5px;font-size:9px;font-weight:700}
+.unit-status-label.done{color:#159664}
+.unit-status-label.waiting{color:#c58a24}
+.row-status{display:inline-block;padding:7px 10px;border-radius:20px;font-size:10px;font-weight:800;white-space:nowrap}
+.row-status.complete{background:#e4fbef;color:#159664}
+.row-status.pending{background:#fff4db;color:#b47b16}
+.empty-state{padding:40px 20px;text-align:center;color:#89839f}
+.empty-state .empty-icon{font-size:36px;margin-bottom:12px}
+.empty-state h3{color:#51496c;margin-bottom:8px;font-size:17px}
+.empty-state p{font-size:12px;line-height:1.7}
+.table-bottom{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;padding:15px 21px;border-top:1px solid #f0edf8;font-size:11px;color:#9993ab}
+.footer{text-align:center;padding:25px 10px 5px;color:#a19bb4;font-size:11px;line-height:1.8}
+/* TOAST */
+#toast{position:fixed;bottom:25px;right:25px;z-index:10000;max-width:calc(100% - 40px);background:#302b4a;color:white;border-radius:13px;padding:14px 19px;font-size:12px;box-shadow:0 10px 35px #302b4a35;opacity:0;transform:translateY(15px);pointer-events:none;transition:.3s}
+#toast.show{opacity:1;transform:translateY(0)}
+/* FIXED: IN-PAGE DATE / CONFIRMATION MODAL */
+.modal-overlay{
+position:fixed;inset:0;background:rgba(39,29,70,.48);
+backdrop-filter:blur(5px);display:none;align-items:center;
+justify-content:center;padding:20px;z-index:20000
+}
+.modal-overlay.open{display:flex}
+.modal-box{
+width:min(430px,100%);background:#fff;border-radius:24px;
+padding:27px;box-shadow:0 25px 80px #20113d40;
+animation:modalPop .22s ease both
+}
+@keyframes modalPop{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+.modal-icon{width:58px;height:58px;display:grid;place-items:center;border-radius:18px;background:#f0ebff;font-size:29px;margin-bottom:16px}
+.modal-box h2{font-size:22px;color:#302b4a;margin-bottom:8px}
+.modal-description{font-size:13px;color:#85829b;line-height:1.7;margin-bottom:20px}
+.modal-details{background:#f8f6ff;border:1px solid #eee8ff;border-radius:13px;padding:13px;margin-bottom:18px;font-size:12px;line-height:1.9;color:#625879}
+.modal-details strong{color:#493a78}
+.modal-date-label{display:block;font-size:12px;font-weight:800;color:#625879;margin-bottom:8px}
+.modal-date-input{width:100%;padding:13px;border:1px solid #ddd4f5;border-radius:12px;background:#fcfbff;color:#302b4a;outline:none}
+.modal-date-input:focus{border-color:#8d70ed;box-shadow:0 0 0 3px #8d70ed20}
+.modal-actions{display:flex;gap:10px;margin-top:20px}
+.modal-actions button{flex:1;border:0;border-radius:12px;padding:13px 10px;font-size:12px;font-weight:800}
+.modal-cancel{background:#f1eef9;color:#756b91}
+.modal-confirm{background:linear-gradient(135deg,#8d70ed,#b17be9);color:white}
+.modal-confirm:hover{filter:brightness(1.04)}
+.modal-warning{color:#c65c7c;font-size:12px;margin-top:9px;display:none}
+.modal-warning.show{display:block}
+.modal-overlay:focus{outline:none}
+/* RESPONSIVE */
+@media(max-width:1050px){.subject-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){
+.topbar{padding:15px 4%}.brand h1{font-size:18px}
+.container{width:92%;margin-top:20px}.hero{padding:25px 21px;border-radius:22px}
+.hero h2{font-size:27px}.filter-panel{grid-template-columns:1fr;padding:17px}
+.stats-grid{gap:11px}.stat-card{padding:16px}.stat-number{font-size:27px}
+.stat-title{font-size:11px}.subject-grid{grid-template-columns:1fr}
+.section-heading h2{font-size:19px}.table-toolbar{align-items:flex-start;padding:17px}
+.toolbar-actions{width:100%}.toolbar-actions .btn{flex:1}
+.date-label{display:none}.floating-emoji{font-size:23px}
+.modal-box{padding:22px}
+}
+@media(max-width:370px){.stats-grid{grid-template-columns:1fr}.splash-logo{width:95px;height:95px;font-size:45px}}
+</style>
+</head>
+<body>
+<!-- SPLASH SCREEN -->
+<section id="intro">
+<div class="splash-orb orb-one"></div>
+<div class="splash-orb orb-two"></div>
+<div class="splash-orb orb-three"></div>
+<span class="floating-emoji e1">📚</span>
+<span class="floating-emoji e2">✨</span>
+<span class="floating-emoji e3">📝</span>
+<span class="floating-emoji e4">🌈</span>
+<span class="floating-emoji e5">💜</span>
+<span class="floating-emoji e6">🎓</span>
+<div class="splash-logo">📚</div>
+<h1 class="splash-title">Assignment Galaxy</h1>
+<p class="splash-subtitle">A colorful space to manage faculty assignments ✨</p>
+<div class="loading-track"><div class="loading-bar"></div></div>
+<p class="splash-note">Preparing your dashboard... 💜</p>
+</section>
+<!-- MAIN DASHBOARD -->
+<div id="app">
+<header class="topbar">
+<div class="brand">
+<div class="brand-icon">📚</div>
+<div>
+<h1>Assignment Galaxy</h1>
+<p>Faculty Assignment Management System</p>
+</div>
+</div>
+<div class="topbar-right">
+<div class="status-pill"><span class="status-dot"></span>Dashboard Ready</div>
+<div class="date-label" id="todayDate"></div>
+</div>
+</header>
+<main class="container">
+<section class="hero">
+<div class="hero-content">
+<span class="hero-tag">✨ YOUR SMART FACULTY WORKSPACE</span>
+<h2>Manage Assignments.<br>Celebrate Every Progress! 🌈</h2>
+<p>Track all four units for every student, mark submissions, record submission dates and monitor class progress — all in one beautiful dashboard.</p>
+<div class="hero-bottom">
+<div class="hero-stat"><div class="hero-stat-icon">🎓</div><div><strong id="heroStudentCount">45 Students</strong><br><span>Current class</span></div></div>
+<div class="hero-stat"><div class="hero-stat-icon">📘</div><div><strong>7 Subjects</strong><br><span>Faculty records</span></div></div>
+<div class="hero-stat"><div class="hero-stat-icon">📝</div><div><strong>4 Units</strong><br><span>Per subject</span></div></div>
+</div>
+</div>
+</section>
+<div class="section-heading">
+<div><h2>🎯 Select Your Classroom</h2><p>Choose the class and subject whose assignments you want to manage.</p></div>
+</div>
+<section class="filter-panel">
+<div class="field">
+<label for="classSelect">🏫 SELECT CLASS</label>
+<select id="classSelect">
+<option value="B.Tech CSE Third A">B.Tech CSE Third A</option>
+<option value="B.Tech CSE Third Section B">B.Tech CSE Third Section B</option>
+<option value="BCA Third A">BCA Third A</option>
+<option value="BCA Third B">BCA Third B</option>
+</select>
+</div>
+<div class="field">
+<label for="subjectSelect">📚 SELECT SUBJECT</label>
+<select id="subjectSelect"></select>
+</div>
+<div class="field">
+<label for="searchInput">🔍 SEARCH STUDENT</label>
+<input type="text" id="searchInput" placeholder="Search roll number or student..." autocomplete="off">
+</div>
+</section>
+<div class="section-heading">
+<div><h2>📊 Assignment Overview</h2><p>Live progress for the selected class and subject.</p></div>
+</div>
+<section class="stats-grid">
+<div class="stat-card" style="--card-color:#8d70ed;--card-bg:#f0ebff">
+<div class="stat-top"><div class="stat-icon">🎓</div><span style="color:#8d70ed;font-size:11px;font-weight:800">STUDENTS</span></div>
+<div class="stat-number" id="totalStudents">45</div><div class="stat-title">Total Students</div><div class="stat-subtitle">Students in selected class</div>
+</div>
+<div class="stat-card" style="--card-color:#25b981;--card-bg:#e5fbf1">
+<div class="stat-top"><div class="stat-icon">✅</div><span style="color:#159664;font-size:11px;font-weight:800">SUBMITTED</span></div>
+<div class="stat-number" id="submittedCount">0</div><div class="stat-title">Submitted Assignments</div><div class="stat-subtitle">Units marked as submitted</div>
+</div>
+<div class="stat-card" style="--card-color:#ffad45;--card-bg:#fff3df">
+<div class="stat-top"><div class="stat-icon">⏳</div><span style="color:#c28420;font-size:11px;font-weight:800">PENDING</span></div>
+<div class="stat-number" id="pendingCount">180</div><div class="stat-title">Pending Assignments</div><div class="stat-subtitle">Units not yet submitted</div>
+</div>
+<div class="stat-card" style="--card-color:#ed79b7;--card-bg:#ffedf6">
+<div class="stat-top"><div class="stat-icon">🌟</div><span style="color:#d85b9d;font-size:11px;font-weight:800">PROGRESS</span></div>
+<div class="stat-number" id="completionRate">0%</div><div class="stat-title">Completion Rate</div><div class="stat-subtitle">Overall unit submission percentage</div>
+</div>
+</section>
+<section class="progress-panel">
+<div class="progress-top"><h3>🚀 Class Assignment Progress</h3><span class="progress-percent" id="progressPercent">0%</span></div>
+<div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+<div class="progress-caption" id="progressCaption">Let's start marking submissions to see progress!</div>
+</section>
+<div class="section-heading">
+<div><h2>📚 Your Subjects</h2><p>Select any subject card to manage its assignment records.</p></div>
+</div>
+<section class="subject-grid" id="subjectGrid"></section>
+<div class="section-heading">
+<div><h2>📝 Student Assignment Register</h2><p>Every student has four separate unit buttons. Mark submission and its date for each unit.</p></div>
+</div>
+<section class="table-panel">
+<div class="table-toolbar">
+<div><h3 id="tableTitle">B.Tech CSE Third A — Assignment Register</h3><p id="tableSubtitle">45 students · 4 units per student</p></div>
+<div class="toolbar-actions">
+<button class="btn btn-light" id="resetFilterBtn" type="button">↻ Clear Search</button>
+<button class="btn btn-primary" id="exportBtn" type="button">⬇ Export CSV</button>
+</div>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>S.No.</th><th>Roll Number</th><th>Student Name</th><th>Unit 1</th><th>Unit 2</th><th>Unit 3</th><th>Unit 4</th><th>Overall Status</th></tr></thead>
+<tbody id="studentTableBody"></tbody>
+</table>
+</div>
+<div class="table-bottom"><span id="visibleCount">Showing 45 students</span><span>💜 Assignment Galaxy · Faculty Dashboard</span></div>
+</section>
+<footer class="footer">
+<strong>Assignment Galaxy</strong> — Faculty Assignment Management System ✨<br>
+Made with 💜 for smarter assignment tracking.<br>
+<span>Demo version: records are saved in this browser.</span>
+</footer>
+</main>
+</div>
+<!-- TOAST -->
+<div id="toast" role="status" aria-live="polite"></div>
+<!-- FIXED IN-PAGE SUBMISSION MODAL -->
+<div class="modal-overlay" id="submissionModal" aria-hidden="true">
+<div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+<div class="modal-icon" id="modalIcon">📝</div>
+<h2 id="modalTitle">Record Submission</h2>
+<p class="modal-description" id="modalDescription">Enter the date when the student submitted this assignment.</p>
+<div class="modal-details" id="modalDetails"></div>
+<label class="modal-date-label" id="modalDateLabel" for="submissionDateInput">📅 SUBMISSION DATE</label>
+<input class="modal-date-input" type="date" id="submissionDateInput">
+<div class="modal-warning" id="modalWarning">Please select a submission date.</div>
+<div class="modal-actions">
+<button type="button" class="modal-cancel" id="modalCancelBtn">Cancel</button>
+<button type="button" class="modal-confirm" id="modalConfirmBtn">✓ Mark Submitted</button>
+</div>
+</div>
+</div>
+<script>
+"use strict";
+/* SUBJECT DATA */
+const subjects=[
+{name:"Engineering Mathematics",teacher:"Dr. Shikha Chandel",icon:"📐",color:"#8d70ed",bg:"#f0ebff"},
+{name:"Machine Learning",teacher:"Ass. Prof. Naman Sharma",icon:"🤖",color:"#4ba9e9",bg:"#e6f5ff"},
+{name:"Software Engineering",teacher:"Dr. Chandan",icon:"💻",color:"#ec77b6",bg:"#ffedf6"},
+{name:"Data Structure",teacher:"Akash Changra",icon:"🌳",color:"#28b991",bg:"#e6faf3"},
+{name:"C++ Programming",teacher:"Gandharv Parmar",icon:"⚙️",color:"#f0a640",bg:"#fff4df"},
+{name:"Digital Electronics",teacher:"Anshul Thakur",icon:"🔌",color:"#6f8df0",bg:"#edf0ff"},
+{name:"Quantitative Aptitude",teacher:"Nitesh",icon:"🧮",color:"#23bfc5",bg:"#e3fbfb"}
+];
+/* STUDENT DATA */
+const rollSuffixes=[
+"033","044","049","079","231","232","243","252","261","297",
+"308","337","342","351","353","360","371","398","399","407",
+"409","461","465","493","510","585","618","629","655","661",
+"662","663","683","698","747","796","871","875","909","915",
+"922","951","980","985","1177"
+];
+const students=rollSuffixes.map(function(suffix,index){
+return{serial:index+1,roll:"H250"+suffix,name:"Student "+suffix};
+});
+const STORAGE_KEY="assignmentGalaxyRecordsV1";
+let records={};
+let toastTimer=null;
+let pendingAction=null;
+/* LOCAL STORAGE */
+function loadRecords(){
+try{
+const saved=localStorage.getItem(STORAGE_KEY);
+if(saved){
+const parsed=JSON.parse(saved);
+if(parsed&&typeof parsed==="object")records=parsed;
+}
+}catch(error){
+console.error("Could not load records:",error);
+records={};
+}
+}
+function saveRecords(){
+try{
+localStorage.setItem(STORAGE_KEY,JSON.stringify(records));
+}catch(error){
+console.error("Could not save records:",error);
+showToast("⚠️ Browser storage is unavailable.");
+}
+}
+/* RECORD HELPERS */
+function getRecordKey(className,subjectName,rollNumber,unitNumber){
+return[className,subjectName,rollNumber,"unit"+unitNumber].join("::");
+}
+function getRecord(className,subjectName,rollNumber,unitNumber){
+return records[getRecordKey(className,subjectName,rollNumber,unitNumber)]||null;
+}
+function getSelectedClass(){return document.getElementById("classSelect").value}
+function getSelectedSubject(){return document.getElementById("subjectSelect").value}
+function getClassStudents(className){
+return className==="B.Tech CSE Third A"?students:[];
+}
+/* INITIALIZATION */
+function buildSubjectDropdown(){
+const select=document.getElementById("subjectSelect");
+select.innerHTML="";
+subjects.forEach(function(subject){
+const option=document.createElement("option");
+option.value=subject.name;
+option.textContent=subject.name+" — "+subject.teacher;
+select.appendChild(option);
+});
+}
+function setTodayDate(){
+document.getElementById("todayDate").textContent=new Date().toLocaleDateString("en-IN",{
+day:"numeric",month:"short",year:"numeric"
+});
+}
+function renderAll(){
+buildSubjectCards();
+updateStats();
+renderTable();
+}
+function startApp(){
+const intro=document.getElementById("intro");
+const app=document.getElementById("app");
+loadRecords();
+buildSubjectDropdown();
+setTodayDate();
+renderAll();
+window.setTimeout(function(){
+intro.classList.add("hide");
+app.classList.add("visible");
+},2600);
+}
+/* STATISTICS */
+function getSubjectStats(className,subjectName){
+const classStudents=getClassStudents(className);
+const totalStudents=classStudents.length;
+const totalAssignments=totalStudents*4;
+let submitted=0;
+classStudents.forEach(function(student){
+for(let unit=1;unit<=4;unit++){
+const record=getRecord(className,subjectName,student.roll,unit);
+if(record&&record.submitted)submitted++;
+}
+});
+const pending=totalAssignments-submitted;
+const percentage=totalAssignments>0?Math.round(submitted/totalAssignments*100):0;
+return{totalStudents,totalAssignments,submitted,pending,percentage};
+}
+function updateStats(){
+const className=getSelectedClass();
+const subjectName=getSelectedSubject();
+const stats=getSubjectStats(className,subjectName);
+document.getElementById("totalStudents").textContent=stats.totalStudents;
+document.getElementById("submittedCount").textContent=stats.submitted;
+document.getElementById("pendingCount").textContent=stats.pending;
+document.getElementById("completionRate").textContent=stats.percentage+"%";
+document.getElementById("progressPercent").textContent=stats.percentage+"%";
+document.getElementById("progressFill").style.width=stats.percentage+"%";
+document.getElementById("heroStudentCount").textContent=stats.totalStudents+" Students";
+document.getElementById("progressCaption").textContent=stats.submitted+" submitted out of "+stats.totalAssignments+" total unit assignments.";
+document.getElementById("tableTitle").textContent=className+" — Assignment Register";
+document.getElementById("tableSubtitle").textContent=stats.totalStudents+" students · 4 units per student · "+subjectName;
+}
+/* SUBJECT CARDS */
+function buildSubjectCards(){
+const grid=document.getElementById("subjectGrid");
+const className=getSelectedClass();
+const selectedSubject=getSelectedSubject();
+grid.innerHTML="";
+subjects.forEach(function(subject,index){
+const stats=getSubjectStats(className,subject.name);
+const isActive=subject.name===selectedSubject;
+const card=document.createElement("article");
+card.className="subject-card"+(isActive?" active":"");
+const top=document.createElement("div");
+top.className="subject-card-top";
+const icon=document.createElement("div");
+icon.className="subject-icon";
+icon.style.background=subject.bg;
+icon.textContent=subject.icon;
+const number=document.createElement("span");
+number.className="subject-number";
+number.textContent="SUBJECT "+String(index+1).padStart(2,"0");
+top.append(icon,number);
+const title=document.createElement("h3");
+title.textContent=subject.name;
+const teacher=document.createElement("p");
+teacher.className="subject-teacher";
+teacher.textContent="👩‍🏫 "+subject.teacher;
+const progress=document.createElement("div");
+progress.className="subject-progress";
+const fill=document.createElement("div");
+fill.className="subject-progress-fill";
+fill.style.width=stats.percentage+"%";
+fill.style.background=subject.color;
+progress.appendChild(fill);
+const footer=document.createElement("div");
+footer.className="subject-footer";
+const submitted=document.createElement("span");
+submitted.textContent=stats.submitted+"/"+stats.totalAssignments+" submitted";
+const button=document.createElement("button");
+button.className="open-subject";
+button.type="button";
+button.textContent=isActive?"Selected ✓":"Open →";
+button.addEventListener("click",function(){
+document.getElementById("subjectSelect").value=subject.name;
+renderAll();
+document.querySelector(".table-panel").scrollIntoView({behavior:"smooth",block:"start"});
+});
+footer.append(submitted,button);
+card.append(top,title,teacher,progress,footer);
+grid.appendChild(card);
+});
+}
+/* STUDENT TABLE */
+function renderTable(){
+const tbody=document.getElementById("studentTableBody");
+const className=getSelectedClass();
+const subjectName=getSelectedSubject();
+const search=document.getElementById("searchInput").value.trim().toLowerCase();
+tbody.innerHTML="";
+const classStudents=getClassStudents(className);
+const filteredStudents=classStudents.filter(function(student){
+return student.roll.toLowerCase().includes(search)||
+student.name.toLowerCase().includes(search)||
+String(student.serial).includes(search);
+});
+if(classStudents.length===0){
+showEmptyState(tbody,"🏫","No Student Records Added Yet","This class is available in the dropdown, but its student roll numbers have not been added yet. B.Tech CSE Third A currently contains all 45 student records.");
+document.getElementById("visibleCount").textContent="Showing 0 students";
+return;
+}
+if(filteredStudents.length===0){
+showEmptyState(tbody,"🔎","No Matching Student Found","Try searching with a different roll number.");
+document.getElementById("visibleCount").textContent="Showing 0 students";
+return;
+}
+filteredStudents.forEach(function(student){
+const row=document.createElement("tr");
+const serialCell=document.createElement("td");
+serialCell.className="serial";
+serialCell.textContent=student.serial;
+row.appendChild(serialCell);
+const rollCell=document.createElement("td");
+rollCell.className="roll-number";
+rollCell.textContent=student.roll;
+row.appendChild(rollCell);
+const nameCell=document.createElement("td");
+nameCell.className="student-name";
+nameCell.textContent=student.name;
+row.appendChild(nameCell);
+let submittedUnits=0;
+for(let unit=1;unit<=4;unit++){
+const record=getRecord(className,subjectName,student.roll,unit);
+const isSubmitted=Boolean(record&&record.submitted);
+if(isSubmitted)submittedUnits++;
+const cell=document.createElement("td");
+cell.className="unit-cell";
+const button=document.createElement("button");
+button.type="button";
+button.className="unit-button"+(isSubmitted?" submitted":"");
+button.textContent=isSubmitted?"✓ Submitted":"☐ Mark Submitted";
+button.title=isSubmitted?"Click to mark this unit as pending":"Click to record this unit's submission";
+button.addEventListener("click",function(){
+toggleSubmission(className,subjectName,student.roll,unit);
+});
+const date=document.createElement("div");
+date.className="unit-date";
+date.textContent=isSubmitted?"📅 "+record.date:"";
+const statusLabel=document.createElement("span");
+statusLabel.className="unit-status-label "+(isSubmitted?"done":"waiting");
+statusLabel.textContent=isSubmitted?"Submission recorded":"Not submitted yet";
+cell.append(button,date,statusLabel);
+row.appendChild(cell);
+}
+const statusCell=document.createElement("td");
+const status=document.createElement("span");
+status.className="row-status"+(submittedUnits===4?" complete":" pending");
+status.textContent=submittedUnits===4?"✓ All Complete":submittedUnits+"/4 Submitted";
+statusCell.appendChild(status);
+row.appendChild(statusCell);
+tbody.appendChild(row);
+});
+document.getElementById("visibleCount").textContent="Showing "+filteredStudents.length+" of "+classStudents.length+" students";
+}
+function showEmptyState(tbody,icon,title,message){
+const row=document.createElement("tr");
+const cell=document.createElement("td");
+cell.colSpan=8;
+const box=document.createElement("div");
+box.className="empty-state";
+const emoji=document.createElement("div");
+emoji.className="empty-icon";
+emoji.textContent=icon;
+const heading=document.createElement("h3");
+heading.textContent=title;
+const paragraph=document.createElement("p");
+paragraph.textContent=message;
+box.append(emoji,heading,paragraph);
+cell.appendChild(box);
+row.appendChild(cell);
+tbody.appendChild(row);
+}
+/* FIXED SUBMISSION SYSTEM: USES IN-PAGE MODAL, NOT PROMPT/CONFIRM */
+function toggleSubmission(className,subjectName,rollNumber,unitNumber){
+const key=getRecordKey(className,subjectName,rollNumber,unitNumber);
+const existing=records[key];
+pendingAction={key,className,subjectName,rollNumber,unitNumber};
+const modal=document.getElementById("submissionModal");
+const icon=document.getElementById("modalIcon");
+const title=document.getElementById("modalTitle");
+const description=document.getElementById("modalDescription");
+const details=document.getElementById("modalDetails");
+const dateInput=document.getElementById("submissionDateInput");
+const dateLabel=document.getElementById("modalDateLabel");
+const confirmButton=document.getElementById("modalConfirmBtn");
+const warning=document.getElementById("modalWarning");
+warning.classList.remove("show");
+details.innerHTML=
+"<strong>Student:</strong> "+escapeHTML(rollNumber)+"<br>"+
+"<strong>Subject:</strong> "+escapeHTML(subjectName)+"<br>"+
+"<strong>Unit:</strong> "+unitNumber+"<br>"+
+"<strong>Class:</strong> "+escapeHTML(className);
+if(existing&&existing.submitted){
+icon.textContent="↩️";
+title.textContent="Undo Submission?";
+description.textContent="Do you want to mark this assignment as pending again? Its saved submission date will be removed.";
+dateInput.style.display="none";
+dateLabel.style.display="none";
+confirmButton.textContent="↩ Mark Pending";
+confirmButton.dataset.action="unmark";
+}else{
+icon.textContent="📝";
+title.textContent="Record Submission";
+description.textContent="Select the date when this student submitted this unit. The date will appear below the green button.";
+dateInput.style.display="block";
+dateLabel.style.display="block";
+confirmButton.textContent="✓ Mark Submitted";
+confirmButton.dataset.action="submit";
+dateInput.value=getLocalISODate();
+}
+modal.classList.add("open");
+modal.setAttribute("aria-hidden","false");
+document.body.style.overflow="hidden";
+if(!(existing&&existing.submitted)){
+setTimeout(function(){dateInput.focus()},100);
+}
+}
+function escapeHTML(value){
+return String(value).replace(/[&<>"']/g,function(char){
+return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char];
+});
+}
+function getLocalISODate(){
+const now=new Date();
+const year=now.getFullYear();
+const month=String(now.getMonth()+1).padStart(2,"0");
+const day=String(now.getDate()).padStart(2,"0");
+return year+"-"+month+"-"+day;
+}
+function formatDisplayDate(isoDate){
+const parts=isoDate.split("-");
+if(parts.length!==3)return isoDate;
+const date=new Date(Number(parts[0]),Number(parts[1])-1,Number(parts[2]));
+return date.toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"});
+}
+function closeSubmissionModal(){
+const modal=document.getElementById("submissionModal");
+modal.classList.remove("open");
+modal.setAttribute("aria-hidden","true");
+document.body.style.overflow="";
+pendingAction=null;
+document.getElementById("modalWarning").classList.remove("show");
+}
+function confirmSubmissionAction(){
+if(!pendingAction)return;
+const action=document.getElementById("modalConfirmBtn").dataset.action;
+const details=pendingAction;
+const warning=document.getElementById("modalWarning");
+if(action==="unmark"){
+delete records[details.key];
+saveRecords();
+closeSubmissionModal();
+renderAll();
+showToast("↩ "+details.rollNumber+" — Unit "+details.unitNumber+" marked as pending.");
+return;
+}
+const dateInput=document.getElementById("submissionDateInput");
+const selectedDate=dateInput.value;
+if(!selectedDate){
+warning.textContent="Please select a submission date.";
+warning.classList.add("show");
+dateInput.focus();
+return;
+}
+const displayDate=formatDisplayDate(selectedDate);
+records[details.key]={
+submitted:true,
+date:displayDate,
+isoDate:selectedDate
+};
+saveRecords();
+closeSubmissionModal();
+renderAll();
+showToast("✅ "+details.rollNumber+" — Unit "+details.unitNumber+" submitted on "+displayDate);
+}
+/* CSV EXPORT */
+function exportCSV(){
+const className=getSelectedClass();
+const subjectName=getSelectedSubject();
+const classStudents=getClassStudents(className);
+if(classStudents.length===0){
+showToast("⚠️ There are no student records to export for this class.");
+return;
+}
+const rows=[[
+"S.No.","Class","Subject","Roll Number","Student Name",
+"Unit 1 Status","Unit 1 Date","Unit 2 Status","Unit 2 Date",
+"Unit 3 Status","Unit 3 Date","Unit 4 Status","Unit 4 Date",
+"Overall Status"
+]];
+classStudents.forEach(function(student){
+let completed=0;
+const row=[student.serial,className,subjectName,student.roll,student.name];
+for(let unit=1;unit<=4;unit++){
+const record=getRecord(className,subjectName,student.roll,unit);
+if(record&&record.submitted){
+completed++;
+row.push("Submitted",record.date);
+}else{
+row.push("Pending","");
+}
+}
+row.push(completed===4?"All Complete":completed+"/4 Submitted");
+rows.push(row);
+});
+const csv=rows.map(function(row){
+return row.map(function(value){
+const text=String(value==null?"":value);
+return '"'+text.replace(/"/g,'""')+'"';
+}).join(",");
+}).join("\r\n");
+const blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"});
+const url=URL.createObjectURL(blob);
+const link=document.createElement("a");
+link.href=url;
+const safeClass=className.replace(/[^a-z0-9]+/gi,"_");
+const safeSubject=subjectName.replace(/[^a-z0-9]+/gi,"_");
+link.download=safeClass+"_"+safeSubject+"_Assignments.csv";
+document.body.appendChild(link);
+link.click();
+link.remove();
+setTimeout(function(){URL.revokeObjectURL(url)},1000);
+showToast("⬇ CSV file downloaded successfully!");
+}
+/* TOAST */
+function showToast(message){
+const toast=document.getElementById("toast");
+toast.textContent=message;
+toast.classList.add("show");
+if(toastTimer)clearTimeout(toastTimer);
+toastTimer=setTimeout(function(){
+toast.classList.remove("show");
+},2800);
+}
+/* EVENT LISTENERS */
+document.getElementById("classSelect").addEventListener("change",renderAll);
+document.getElementById("subjectSelect").addEventListener("change",renderAll);
+document.getElementById("searchInput").addEventListener("input",renderTable);
+document.getElementById("resetFilterBtn").addEventListener("click",function(){
+document.getElementById("searchInput").value="";
+renderTable();
+showToast("🔎 Search cleared!");
+});
+document.getElementById("exportBtn").addEventListener("click",exportCSV);
+document.getElementById("modalCancelBtn").addEventListener("click",closeSubmissionModal);
+document.getElementById("modalConfirmBtn").addEventListener("click",confirmSubmissionAction);
+/* Close the modal by tapping outside it */
+document.getElementById("submissionModal").addEventListener("click",function(event){
+if(event.target===this)closeSubmissionModal();
+});
+/* Escape key closes the modal */
+document.addEventListener("keydown",function(event){
+if(event.key==="Escape"){
+const modal=document.getElementById("submissionModal");
+if(modal.classList.contains("open"))closeSubmissionModal();
+}
+});
+/* START */
+if(document.readyState==="loading"){
+document.addEventListener("DOMContentLoaded",startApp);
+}else{
+startApp();
+}
+</script>
+</body>
+</html>
