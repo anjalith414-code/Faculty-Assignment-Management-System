@@ -5,812 +5,170 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Assignment Galaxy | Faculty Dashboard</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-:root{
---purple:#7655e8;--pink:#ff76b7;--blue:#65a9ff;
---cyan:#5de0d0;--yellow:#ffd66b;--green:#25b981;
---text:#302b4a;--muted:#85829b;--white:#fff;--bg:#f8f7ff
-}
-body{font-family:"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
-button,input,select{font:inherit}
-button{cursor:pointer}
-/* SPLASH SCREEN */
-#intro{
-position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;
-align-items:center;justify-content:center;overflow:hidden;
-background:linear-gradient(135deg,#fbe3f3,#e8e5ff,#dff8ff,#fff1cf);
-transition:opacity .8s ease,visibility .8s ease
-}
-#intro.hide{opacity:0;visibility:hidden;pointer-events:none}
-.splash-orb{position:absolute;border-radius:50%;filter:blur(2px);animation:floatOrb 5s ease-in-out infinite}
-.orb-one{width:180px;height:180px;background:#ff9dce77;top:10%;left:8%}
-.orb-two{width:230px;height:230px;background:#a99aff66;right:6%;bottom:8%;animation-delay:1s}
-.orb-three{width:120px;height:120px;background:#6ce9dc77;top:20%;right:20%;animation-delay:2s}
-.splash-logo{
-width:115px;height:115px;border-radius:35px;
-background:linear-gradient(135deg,#a58aff,#ff91c8);display:grid;
-place-items:center;color:white;font-size:55px;
-box-shadow:0 20px 60px #9471e955;
-animation:logoPop 1s ease both,logoFloat 2s 1s ease-in-out infinite;
-position:relative;z-index:2
-}
-.splash-title{
-font-size:clamp(30px,6vw,52px);margin-top:25px;font-weight:900;
-text-align:center;background:linear-gradient(90deg,#7851df,#ef68b0,#4e9ff5);
--webkit-background-clip:text;background-clip:text;color:transparent;
-animation:fadeUp .8s .2s both;position:relative;z-index:2
-}
-.splash-subtitle{color:#77718e;margin-top:12px;font-size:15px;text-align:center;animation:fadeUp .8s .4s both;position:relative;z-index:2}
-.loading-track{width:210px;height:7px;margin-top:35px;border-radius:20px;background:#ffffffbb;overflow:hidden;animation:fadeUp .8s .5s both;position:relative;z-index:2}
-.loading-bar{width:0;height:100%;border-radius:inherit;background:linear-gradient(90deg,#8e70f4,#ff83bc,#5ccfc6);animation:loading 2.3s ease-in-out forwards}
-.splash-note{margin-top:14px;color:#85809e;font-size:12px;animation:fadeUp .8s .6s both;position:relative;z-index:2}
-.floating-emoji{position:absolute;font-size:30px;animation:emojiFloat 4s ease-in-out infinite;user-select:none}
-.e1{top:17%;left:24%}.e2{top:24%;right:22%;animation-delay:.6s}
-.e3{bottom:23%;left:18%;animation-delay:1s}.e4{bottom:20%;right:19%;animation-delay:1.5s}
-.e5{top:48%;left:8%;animation-delay:.8s}.e6{top:55%;right:8%;animation-delay:1.2s}
-@keyframes loading{from{width:0}to{width:100%}}
-@keyframes logoPop{from{transform:scale(.3) rotate(-20deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
-@keyframes logoFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
-@keyframes floatOrb{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-25px) scale(1.08)}}
-@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
-@keyframes emojiFloat{0%,100%{transform:translateY(0) rotate(-8deg)}50%{transform:translateY(-18px) rotate(8deg)}}
-/* MAIN DASHBOARD */
-#app{display:none;min-height:100vh;opacity:0}
-#app.visible{display:block;animation:dashboardEnter .8s ease forwards}
-@keyframes dashboardEnter{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-.topbar{
-min-height:82px;padding:17px 5%;display:flex;align-items:center;
-justify-content:space-between;gap:20px;flex-wrap:wrap;
-background:#ffffffd9;backdrop-filter:blur(15px);
-border-bottom:1px solid #ece8fa;position:sticky;top:0;z-index:100
-}
-.brand{display:flex;align-items:center;gap:13px}
-.brand-icon{width:49px;height:49px;display:grid;place-items:center;border-radius:16px;font-size:25px;background:linear-gradient(135deg,#9276f5,#ff92c9);box-shadow:0 7px 20px #9e7bed33}
-.brand h1{font-size:21px;font-weight:850;letter-spacing:-.5px}
-.brand p{font-size:11px;color:var(--muted);margin-top:4px}
-.topbar-right{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-.status-pill{display:flex;align-items:center;gap:7px;padding:9px 13px;background:#e8fbf3;color:#16865c;border-radius:30px;font-size:12px;font-weight:700}
-.status-dot{width:7px;height:7px;background:#25b981;border-radius:50%}
-.date-label{color:#77718e;font-size:12px;background:#f5f2ff;padding:10px 13px;border-radius:12px}
-.container{width:min(1450px,92%);margin:30px auto 50px}
-/* HERO */
-.hero{padding:35px;border-radius:28px;background:linear-gradient(115deg,#8b70ed,#b07be9 48%,#f38cbe);color:white;position:relative;overflow:hidden;box-shadow:0 15px 40px #a88be733;margin-bottom:26px}
-.hero::before{content:"";width:250px;height:250px;border-radius:50%;background:#ffffff17;position:absolute;right:12%;top:-120px}
-.hero::after{content:"";width:180px;height:180px;border-radius:50%;background:#ffffff13;position:absolute;right:-40px;bottom:-100px}
-.hero-content{position:relative;z-index:2;max-width:760px}
-.hero-tag{display:inline-block;background:#ffffff2b;border:1px solid #ffffff50;padding:7px 12px;border-radius:30px;font-size:11px;font-weight:700;letter-spacing:.8px;margin-bottom:16px}
-.hero h2{font-size:clamp(25px,4vw,38px);line-height:1.2;font-weight:850}
-.hero p{margin-top:13px;line-height:1.7;color:#fff0ff;font-size:14px;max-width:610px}
-.hero-bottom{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-top:25px}
-.hero-stat{display:flex;align-items:center;gap:10px;font-size:12px;color:white}
-.hero-stat-icon{width:37px;height:37px;border-radius:12px;background:#ffffff28;display:grid;place-items:center;font-size:19px}
-/* HEADINGS */
-.section-heading{display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap;margin:32px 0 17px}
-.section-heading h2{font-size:21px;font-weight:850}
-.section-heading p{color:var(--muted);font-size:12px;margin-top:5px}
-/* FILTERS */
-.filter-panel{background:white;padding:22px;border-radius:22px;border:1px solid #efecfa;box-shadow:0 6px 25px #7664a80a;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:17px;margin-bottom:25px}
-.field label{display:block;font-size:12px;font-weight:750;color:#69647f;margin-bottom:9px}
-.field select,.field input{width:100%;min-height:45px;border:1px solid #e8e4f4;background:#fbfaff;padding:11px 13px;border-radius:12px;color:#39334f;outline:none;transition:.2s}
-.field select:focus,.field input:focus{border-color:#a18af4;box-shadow:0 0 0 3px #a18af422}
-/* STATISTICS */
-.stats-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:17px}
-.stat-card{background:white;border-radius:21px;padding:22px;border:1px solid #efecfa;position:relative;overflow:hidden;transition:transform .25s,box-shadow .25s}
-.stat-card:hover{transform:translateY(-5px);box-shadow:0 14px 35px #7e6bb51a}
-.stat-card::after{content:"";position:absolute;width:90px;height:90px;right:-30px;bottom:-35px;border-radius:50%;background:var(--card-color);opacity:.12}
-.stat-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.stat-icon{width:45px;height:45px;border-radius:15px;display:grid;place-items:center;font-size:22px;background:var(--card-bg)}
-.stat-number{font-size:32px;font-weight:900;margin-top:17px;letter-spacing:-1px}
-.stat-title{color:#817c98;font-size:12px;font-weight:650;margin-top:5px}
-.stat-subtitle{color:#aaa5bb;font-size:10px;margin-top:8px}
-/* PROGRESS */
-.progress-panel{background:white;border:1px solid #efecfa;border-radius:22px;padding:24px;margin-top:20px}
-.progress-top{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
-.progress-top h3{font-size:15px}
-.progress-percent{font-size:23px;font-weight:900;color:#805fe9}
-.progress-track{width:100%;height:12px;background:#f0edf9;border-radius:30px;margin-top:18px;overflow:hidden}
-.progress-fill{height:100%;width:0;border-radius:inherit;background:linear-gradient(90deg,#8e72f1,#ed8cc9,#63d4c7);transition:width .5s ease}
-.progress-caption{font-size:11px;color:#9993ae;margin-top:11px}
-/* SUBJECT CARDS */
-.subject-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:17px}
-.subject-card{background:white;border:1px solid #efecfa;border-radius:21px;padding:21px;position:relative;transition:.25s;overflow:hidden}
-.subject-card:hover{transform:translateY(-4px);box-shadow:0 12px 32px #7765aa14}
-.subject-card.active{border:2px solid #a18af4;box-shadow:0 8px 25px #9478ee18}
-.subject-card-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
-.subject-icon{width:47px;height:47px;border-radius:15px;display:grid;place-items:center;font-size:23px}
-.subject-number{font-size:10px;color:#9a95ac;background:#f6f3fc;border-radius:20px;padding:6px 9px}
-.subject-card h3{font-size:16px;margin-top:17px;line-height:1.4}
-.subject-teacher{color:#858099;font-size:12px;margin-top:7px}
-.subject-progress{height:6px;background:#f0edf8;border-radius:20px;margin-top:18px;overflow:hidden}
-.subject-progress-fill{height:100%;border-radius:20px;transition:width .4s}
-.subject-footer{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:13px;font-size:11px;color:#8a859e}
-.open-subject{border:0;padding:8px 12px;background:#f0ebff;color:#7655e8;font-size:11px;font-weight:750;border-radius:10px;transition:.2s}
-.open-subject:hover{background:#7655e8;color:white}
-/* TABLE */
-.table-panel{background:white;border:1px solid #efecfa;border-radius:22px;overflow:hidden;margin-top:18px}
-.table-toolbar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:15px;padding:21px;border-bottom:1px solid #f0edf8}
-.table-toolbar h3{font-size:16px}
-.table-toolbar p{color:#9690a9;font-size:11px;margin-top:5px}
-.toolbar-actions{display:flex;gap:9px;flex-wrap:wrap}
-.btn{border:none;border-radius:11px;padding:11px 15px;font-size:11px;font-weight:750;transition:.2s}
-.btn-primary{color:white;background:linear-gradient(135deg,#8d70ed,#b17be9);box-shadow:0 5px 13px #9275ed2b}
-.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 18px #9275ed45}
-.btn-light{background:#f3f0fc;color:#6f5bc1}
-.btn-light:hover{background:#e7e0fc}
-.table-wrap{width:100%;overflow-x:auto}
-table{border-collapse:collapse;width:100%;min-width:1050px}
-thead{background:#faf8ff}
-th{padding:15px 13px;text-align:left;color:#7c7695;font-size:10px;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
-td{padding:14px 13px;border-top:1px solid #f3f0f9;font-size:12px;vertical-align:middle}
-tbody tr{transition:background .2s}
-tbody tr:hover{background:#fcfaff}
-.serial{color:#a19bb5;font-weight:750}
-.roll-number{color:#6e52d4;font-weight:800;white-space:nowrap}
-.student-name{font-weight:700;white-space:nowrap}
-.unit-cell{min-width:135px}
-.unit-button{width:100%;display:flex;align-items:center;justify-content:center;gap:6px;border:1px solid #f2c5d6;background:#fff0f5;color:#d45c85;border-radius:9px;padding:10px 7px;font-size:10px;font-weight:800;transition:.2s}
-.unit-button:hover{transform:scale(1.03)}
-.unit-button.submitted{background:#e5fbf0;color:#159664;border-color:#a8ebcc}
-.unit-date{font-size:10px;text-align:center;color:#16865c;margin-top:7px;min-height:13px;white-space:nowrap}
-.unit-status-label{display:block;text-align:center;margin-top:5px;font-size:9px;font-weight:700}
-.unit-status-label.done{color:#159664}
-.unit-status-label.waiting{color:#c58a24}
-.row-status{display:inline-block;padding:7px 10px;border-radius:20px;font-size:10px;font-weight:800;white-space:nowrap}
-.row-status.complete{background:#e4fbef;color:#159664}
-.row-status.pending{background:#fff4db;color:#b47b16}
-.empty-state{padding:40px 20px;text-align:center;color:#89839f}
-.empty-state .empty-icon{font-size:36px;margin-bottom:12px}
-.empty-state h3{color:#51496c;margin-bottom:8px;font-size:17px}
-.empty-state p{font-size:12px;line-height:1.7}
-.table-bottom{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;padding:15px 21px;border-top:1px solid #f0edf8;font-size:11px;color:#9993ab}
-.footer{text-align:center;padding:25px 10px 5px;color:#a19bb4;font-size:11px;line-height:1.8}
-/* TOAST */
-#toast{position:fixed;bottom:25px;right:25px;z-index:10000;max-width:calc(100% - 40px);background:#302b4a;color:white;border-radius:13px;padding:14px 19px;font-size:12px;box-shadow:0 10px 35px #302b4a35;opacity:0;transform:translateY(15px);pointer-events:none;transition:.3s}
-#toast.show{opacity:1;transform:translateY(0)}
-/* FIXED: IN-PAGE DATE / CONFIRMATION MODAL */
-.modal-overlay{
-position:fixed;inset:0;background:rgba(39,29,70,.48);
-backdrop-filter:blur(5px);display:none;align-items:center;
-justify-content:center;padding:20px;z-index:20000
-}
-.modal-overlay.open{display:flex}
-.modal-box{
-width:min(430px,100%);background:#fff;border-radius:24px;
-padding:27px;box-shadow:0 25px 80px #20113d40;
-animation:modalPop .22s ease both
-}
-@keyframes modalPop{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
-.modal-icon{width:58px;height:58px;display:grid;place-items:center;border-radius:18px;background:#f0ebff;font-size:29px;margin-bottom:16px}
-.modal-box h2{font-size:22px;color:#302b4a;margin-bottom:8px}
-.modal-description{font-size:13px;color:#85829b;line-height:1.7;margin-bottom:20px}
-.modal-details{background:#f8f6ff;border:1px solid #eee8ff;border-radius:13px;padding:13px;margin-bottom:18px;font-size:12px;line-height:1.9;color:#625879}
-.modal-details strong{color:#493a78}
-.modal-date-label{display:block;font-size:12px;font-weight:800;color:#625879;margin-bottom:8px}
-.modal-date-input{width:100%;padding:13px;border:1px solid #ddd4f5;border-radius:12px;background:#fcfbff;color:#302b4a;outline:none}
-.modal-date-input:focus{border-color:#8d70ed;box-shadow:0 0 0 3px #8d70ed20}
-.modal-actions{display:flex;gap:10px;margin-top:20px}
-.modal-actions button{flex:1;border:0;border-radius:12px;padding:13px 10px;font-size:12px;font-weight:800}
-.modal-cancel{background:#f1eef9;color:#756b91}
-.modal-confirm{background:linear-gradient(135deg,#8d70ed,#b17be9);color:white}
-.modal-confirm:hover{filter:brightness(1.04)}
-.modal-warning{color:#c65c7c;font-size:12px;margin-top:9px;display:none}
-.modal-warning.show{display:block}
-.modal-overlay:focus{outline:none}
-/* RESPONSIVE */
-@media(max-width:1050px){.subject-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:700px){
-.topbar{padding:15px 4%}.brand h1{font-size:18px}
-.container{width:92%;margin-top:20px}.hero{padding:25px 21px;border-radius:22px}
-.hero h2{font-size:27px}.filter-panel{grid-template-columns:1fr;padding:17px}
-.stats-grid{gap:11px}.stat-card{padding:16px}.stat-number{font-size:27px}
-.stat-title{font-size:11px}.subject-grid{grid-template-columns:1fr}
-.section-heading h2{font-size:19px}.table-toolbar{align-items:flex-start;padding:17px}
-.toolbar-actions{width:100%}.toolbar-actions .btn{flex:1}
-.date-label{display:none}.floating-emoji{font-size:23px}
-.modal-box{padding:22px}
-}
-@media(max-width:370px){.stats-grid{grid-template-columns:1fr}.splash-logo{width:95px;height:95px;font-size:45px}}
+:root{--purple:#6c63ff;--pink:#ff7eb3;--cyan:#5bd6e8;--ink:#252345;--muted:#77758f;--card:rgba(255,255,255,.88);--line:#ecebfa;--green:#21a67a;--red:#e45e78}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;color:var(--ink);background:linear-gradient(135deg,#f4f1ff,#fff3f8 55%,#eafcff);min-height:100vh}button,input,select{font:inherit}button{cursor:pointer;border:0}.hidden{display:none!important}.shell{width:min(1180px,94%);margin:auto;padding:26px 0 48px}.topbar{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:24px}.brand{display:flex;align-items:center;gap:12px}.brand-icon{height:48px;width:48px;border-radius:16px;background:linear-gradient(135deg,var(--purple),var(--pink));display:grid;place-items:center;color:white;font-size:25px;box-shadow:0 10px 25px #6c63ff33}.brand h1{font-size:clamp(19px,3vw,27px);margin:0}.brand p{margin:4px 0 0;color:var(--muted);font-size:12px}.btn{padding:11px 16px;border-radius:12px;font-weight:700;transition:.2s}.btn:hover{transform:translateY(-1px)}.primary{color:#fff;background:linear-gradient(120deg,var(--purple),#9c69f7);box-shadow:0 8px 18px #6c63ff30}.secondary{background:#f0efff;color:#5b53dc}.danger{background:#fff0f3;color:#c63d5d}.panel{background:var(--card);border:1px solid #ffffffc9;border-radius:23px;padding:clamp(18px,3vw,30px);box-shadow:0 16px 50px #5349a00d;backdrop-filter:blur(10px)}.hero{margin-bottom:20px}.eyebrow{display:inline-block;padding:7px 11px;border-radius:100px;background:#efedff;color:#6359e8;font-size:12px;font-weight:800;letter-spacing:.3px}.hero h2{font-size:clamp(25px,4vw,37px);margin:14px 0 8px;letter-spacing:-.8px}.hero p{color:var(--muted);line-height:1.6;margin:0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(225px,1fr));gap:16px}.pick-card{background:white;border:1px solid var(--line);border-radius:20px;padding:22px;text-align:left;box-shadow:0 8px 24px #4239a00a;transition:.22s;min-height:160px;color:var(--ink)}.pick-card:hover{transform:translateY(-4px);border-color:#c9c4ff;box-shadow:0 15px 32px #6c63ff17}.pick-icon{font-size:32px;margin-bottom:14px}.pick-card h3{margin:0 0 7px;font-size:17px}.pick-card p{margin:0;color:var(--muted);font-size:13px;line-height:1.5}.teacher-card{display:flex;gap:14px;align-items:center;min-height:112px}.avatar{width:52px;height:52px;flex-shrink:0;border-radius:17px;background:linear-gradient(135deg,#e8e5ff,#ffe4ef);display:grid;place-items:center;font-size:25px}.teacher-card .pick-icon{margin:0}.teacher-card h3{font-size:15px}.teacher-card .arrow{margin-left:auto;color:#8a83eb;font-size:22px}.crumb{display:flex;align-items:center;gap:8px;flex-wrap:wrap;color:var(--muted);font-size:13px;margin:0 0 18px}.crumb button{background:none;color:#645be8;font-weight:800;padding:0}.login-wrap{max-width:470px;margin:0 auto}.login-head{text-align:center;margin-bottom:22px}.login-head .avatar{margin:0 auto 12px}.login-head h2{margin:0 0 7px}.login-head p{color:var(--muted);margin:0}.field{display:block;margin:16px 0}.field span{display:block;font-weight:700;font-size:13px;margin-bottom:8px}.field input,.toolbar input,.toolbar select{width:100%;padding:12px 13px;border:1px solid #e5e3f5;border-radius:12px;background:#fff;outline:none;color:var(--ink)}.field input:focus,.toolbar input:focus,.toolbar select:focus{border-color:#9a91ff;box-shadow:0 0 0 3px #6c63ff14}
+
+/* Added only for the password show/hide button */
+.password-wrapper{position:relative;width:100%}
+.password-wrapper input{width:100%;padding-right:45px}
+.password-toggle{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:transparent;border:none;padding:5px;font-size:18px;cursor:pointer;line-height:1}
+.password-toggle:focus-visible{outline:2px solid var(--purple);border-radius:5px}
+
+.login-hint{margin-top:17px;background:#f6f4ff;border-radius:13px;padding:13px;color:#615b9a;font-size:12px;line-height:1.65}.error{color:#c63d5d;font-size:13px;min-height:18px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin:20px 0}.stat{background:white;border:1px solid var(--line);border-radius:17px;padding:17px}.stat span{display:block;color:var(--muted);font-size:12px;margin-bottom:9px}.stat strong{font-size:25px}.toolbar{display:grid;grid-template-columns:minmax(170px,1fr) minmax(180px,1fr) minmax(170px,1.5fr);gap:12px;margin:18px 0}.subject-banner{display:flex;justify-content:space-between;gap:15px;align-items:center;padding:18px;background:linear-gradient(110deg,#f0edff,#fff0f7);border-radius:18px}.subject-banner h3{margin:0 0 6px}.subject-banner p{margin:0;color:var(--muted);font-size:13px}.progress{height:8px;background:#e8e6f8;border-radius:20px;overflow:hidden;margin-top:12px}.progress div{height:100%;background:linear-gradient(90deg,var(--purple),var(--pink));width:0;transition:.3s}.table-wrap{overflow-x:auto;background:white;border:1px solid var(--line);border-radius:17px;margin-top:17px}table{border-collapse:collapse;width:100%;min-width:850px}th,td{text-align:left;padding:13px 14px;border-bottom:1px solid #f0eff8;font-size:13px}th{background:#faf9ff;color:#6e6a8c;font-size:11px;text-transform:uppercase;letter-spacing:.5px}tr:last-child td{border-bottom:0}.unit-btn{padding:7px 10px;border-radius:9px;background:#f1efff;color:#6359df;font-weight:700;font-size:12px}.unit-btn.done{background:#e4f8f0;color:#13835e}.status{font-size:11px;font-weight:800}.status.done{color:#16845e}.status.pending{color:#cf8b25}.empty{text-align:center;padding:35px;color:var(--muted)}.subject-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:13px;margin-top:18px}.subject-mini{background:#fff;border:1px solid var(--line);padding:17px;border-radius:16px}.subject-mini strong{display:block;margin:8px 0 5px}.subject-mini small{color:var(--muted)}.modal-backdrop{position:fixed;inset:0;background:#17152e70;display:grid;place-items:center;padding:18px;z-index:30}.modal{width:min(430px,100%);background:#fff;border-radius:22px;padding:25px;box-shadow:0 25px 80px #16132f44}.modal h3{margin:0 0 7px}.modal p{color:var(--muted);font-size:13px}.modal-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:18px}.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#282443;color:white;padding:12px 18px;border-radius:12px;box-shadow:0 12px 35px #2222;z-index:50;font-size:13px}.footer{text-align:center;color:#9290a9;font-size:12px;margin-top:28px}.intro{position:fixed;inset:0;z-index:100;background:linear-gradient(135deg,#f1edff,#fff0f7 55%,#e8fcff);display:grid;place-items:center;overflow:hidden;transition:opacity .6s,visibility .6s;animation:introExit .6s ease 2.6s forwards;pointer-events:auto}.intro.gone{opacity:0;visibility:hidden;pointer-events:none}.intro-content{text-align:center;position:relative;z-index:2;padding:20px}.intro-logo{height:94px;width:94px;margin:0 auto 20px;border-radius:30px;background:linear-gradient(135deg,var(--purple),var(--pink));display:grid;place-items:center;color:white;font-size:45px;box-shadow:0 20px 50px #6c63ff40;animation:bob 2s ease-in-out infinite}.intro h1{font-size:clamp(35px,7vw,58px);margin:0;letter-spacing:-1.5px}.intro p{color:#77718f;margin:12px 0 26px}.loading{height:6px;width:min(240px,65vw);background:#e2def7;border-radius:20px;overflow:hidden;margin:auto}.loading span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--purple),var(--pink),var(--cyan));animation:load 2.25s ease forwards}.orb{position:absolute;width:210px;height:210px;border-radius:50%;filter:blur(2px);opacity:.28;background:linear-gradient(135deg,#a79cff,#ffb7d5);animation:bob 5s ease-in-out infinite}.orb.one{top:10%;left:8%}.orb.two{bottom:8%;right:8%;width:260px;height:260px;animation-delay:-2s}@keyframes load{to{width:100%}}@keyframes bob{50%{transform:translateY(-12px) rotate(5deg)}}@keyframes introExit{to{opacity:0;visibility:hidden;pointer-events:none}}@media(max-width:700px){.stats{grid-template-columns:repeat(2,1fr)}.toolbar{grid-template-columns:1fr}.topbar{align-items:flex-start}.subject-banner{align-items:flex-start;flex-direction:column}}@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 </style>
 </head>
 <body>
-<!-- SPLASH SCREEN -->
-<section id="intro">
-<div class="splash-orb orb-one"></div>
-<div class="splash-orb orb-two"></div>
-<div class="splash-orb orb-three"></div>
-<span class="floating-emoji e1">📚</span>
-<span class="floating-emoji e2">✨</span>
-<span class="floating-emoji e3">📝</span>
-<span class="floating-emoji e4">🌈</span>
-<span class="floating-emoji e5">💜</span>
-<span class="floating-emoji e6">🎓</span>
-<div class="splash-logo">📚</div>
-<h1 class="splash-title">Assignment Galaxy</h1>
-<p class="splash-subtitle">A colorful space to manage faculty assignments ✨</p>
-<div class="loading-track"><div class="loading-bar"></div></div>
-<p class="splash-note">Preparing your dashboard... 💜</p>
+<div class="intro" id="intro"><div class="orb one"></div><div class="orb two"></div><div class="intro-content"><div class="intro-logo">🌌</div><h1>Assignment Galaxy</h1><p>Faculty Assignment Management System</p><div class="loading"><span></span></div></div></div>
+<div class="shell">
+<header class="topbar"><div class="brand"><div class="brand-icon">🌌</div><div><h1>Assignment Galaxy</h1><p>Faculty Assignment Management System</p></div></div><div id="topActions" class="hidden"><button class="btn secondary" id="logoutBtn">Log out ↗</button></div></header>
+
+<section id="classPage">
+<div class="panel hero"><span class="eyebrow">WELCOME TO YOUR WORKSPACE</span><h2>Select your class ✨</h2><p>Choose a class to view its faculty members and open the relevant teacher dashboard.</p></div>
+<div class="grid" id="classGrid"></div>
 </section>
-<!-- MAIN DASHBOARD -->
-<div id="app">
-<header class="topbar">
-<div class="brand">
-<div class="brand-icon">📚</div>
-<div>
-<h1>Assignment Galaxy</h1>
-<p>Faculty Assignment Management System</p>
-</div>
-</div>
-<div class="topbar-right">
-<div class="status-pill"><span class="status-dot"></span>Dashboard Ready</div>
-<div class="date-label" id="todayDate"></div>
-</div>
-</header>
-<main class="container">
-<section class="hero">
-<div class="hero-content">
-<span class="hero-tag">✨ YOUR SMART FACULTY WORKSPACE</span>
-<h2>Manage Assignments.<br>Celebrate Every Progress! 🌈</h2>
-<p>Track all four units for every student, mark submissions, record submission dates and monitor class progress — all in one beautiful dashboard.</p>
-<div class="hero-bottom">
-<div class="hero-stat"><div class="hero-stat-icon">🎓</div><div><strong id="heroStudentCount">45 Students</strong><br><span>Current class</span></div></div>
-<div class="hero-stat"><div class="hero-stat-icon">📘</div><div><strong>7 Subjects</strong><br><span>Faculty records</span></div></div>
-<div class="hero-stat"><div class="hero-stat-icon">📝</div><div><strong>4 Units</strong><br><span>Per subject</span></div></div>
-</div>
+
+<section id="teacherPage" class="hidden">
+<div class="crumb"><button onclick="showClasses()">← Classes</button><span>/</span><span id="selectedClassCrumb"></span></div>
+<div class="panel hero"><span class="eyebrow">FACULTY DIRECTORY</span><h2>Choose your teacher 👩‍🏫</h2><p>Select the teacher whose dashboard you want to open. Each teacher has a separate demo login.</p></div>
+<div class="grid" id="teacherGrid"></div>
+</section>
+
+<section id="loginPage" class="hidden">
+<div class="crumb"><button onclick="showTeachers()">← Teachers</button><span>/</span><span id="loginCrumb"></span></div>
+<div class="panel login-wrap">
+<div class="login-head"><div class="avatar" id="loginAvatar">👩‍🏫</div><h2 id="loginTeacherName">Teacher Login</h2><p id="loginSubjectName"></p></div>
+<form id="loginForm">
+<label class="field"><span>Username</span><input id="username" autocomplete="username" placeholder="Enter username" required></label>
+<label class="field">
+  <span>Password</span>
+  <div class="password-wrapper">
+    <input id="password" type="password" autocomplete="current-password" placeholder="Enter password" required>
+    <button type="button" id="togglePassword" class="password-toggle" aria-label="Show password" aria-pressed="false">👁️</button>
+  </div>
+</label>
+<div class="error" id="loginError"></div><button class="btn primary" style="width:100%" type="submit">Login to dashboard →</button>
+</form>
+<div class="login-hint"><strong>Demo login details</strong><br><span id="credentialHint"></span><br><br>Prototype only: these front-end demo credentials are not secure for real deployment. Secure authentication requires a backend.</div>
 </div>
 </section>
-<div class="section-heading">
-<div><h2>🎯 Select Your Classroom</h2><p>Choose the class and subject whose assignments you want to manage.</p></div>
+
+<section id="dashboardPage" class="hidden">
+<div class="crumb"><button onclick="showClasses()">← Classes</button><span>/</span><button onclick="showTeachers()">Teachers</button><span>/</span><span id="dashCrumb"></span></div>
+<div class="panel">
+<div class="subject-banner"><div><span class="eyebrow">TEACHER DASHBOARD</span><h2 id="welcomeTitle" style="margin:10px 0 5px">Welcome</h2><p id="welcomeSub"></p></div><button class="btn secondary" onclick="showTeachers()">Switch teacher</button></div>
+<div id="workTabs" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px"><button type="button" class="btn primary" id="assignmentTab">📘 Assignment</button><button type="button" class="btn secondary hidden" id="practicalTab">🧪 Practical</button></div>
+<div class="stats">
+<div class="stat"><span>Total Students</span><strong id="totalStudents">0</strong></div>
+<div class="stat"><span>Units Submitted</span><strong id="submittedCount">0</strong></div>
+<div class="stat"><span>Units Pending</span><strong id="pendingCount">0</strong></div>
+<div class="stat"><span>Completion</span><strong id="completionRate">0%</strong></div>
 </div>
-<section class="filter-panel">
-<div class="field">
-<label for="classSelect">🏫 SELECT CLASS</label>
-<select id="classSelect">
-<option value="B.Tech CSE Third A">B.Tech CSE Third A</option>
-<option value="B.Tech CSE Third Section B">B.Tech CSE Third Section B</option>
-<option value="BCA Third A">BCA Third A</option>
-<option value="BCA Third B">BCA Third B</option>
-<option value="BSC IT">BSC IT</option>
-<option value="BSC CS">BSC CS</option>
-</select>
-</div>
-<div class="field">
-<label for="subjectSelect">📚 SELECT SUBJECT</label>
-<select id="subjectSelect"></select>
-</div>
-<div class="field">
-<label for="searchInput">🔍 SEARCH STUDENT</label>
-<input type="text" id="searchInput" placeholder="Search roll number or student..." autocomplete="off">
+<div class="subject-banner"><div style="flex:1"><h3>Assignment progress</h3><p id="progressText">0 of 0 unit submissions completed</p><div class="progress"><div id="progressBar"></div></div></div><button class="btn primary" id="exportBtn">Export CSV ↓</button></div>
+<div class="toolbar"><select id="unitFilter"><option value="all">All units</option><option value="1">Unit 1</option><option value="2">Unit 2</option><option value="3">Unit 3</option><option value="4">Unit 4</option></select><select id="statusFilter"><option value="all">All statuses</option><option value="submitted">Submitted</option><option value="pending">Pending</option></select><input id="searchInput" placeholder="Search by student name or roll number..."></div>
+<div class="table-wrap"><table><thead><tr><th>Roll number</th><th>Student name</th><th>Unit 1</th><th>Unit 2</th><th>Unit 3</th><th>Unit 4</th><th>Submitted</th></tr></thead><tbody id="studentRows"></tbody></table></div>
+<p style="font-size:12px;color:var(--muted);margin:13px 2px 0">Click a unit button to mark it submitted or update its submission date. Changes are saved in this browser.</p>
 </div>
 </section>
-<div class="section-heading">
-<div><h2>📊 Assignment Overview</h2><p>Live progress for the selected class and subject.</p></div>
+<div class="footer">Assignment Galaxy · Career Point University, Hamirpur · CSE Department</div>
 </div>
-<section class="stats-grid">
-<div class="stat-card" style="--card-color:#8d70ed;--card-bg:#f0ebff">
-<div class="stat-top"><div class="stat-icon">🎓</div><span style="color:#8d70ed;font-size:11px;font-weight:800">STUDENTS</span></div>
-<div class="stat-number" id="totalStudents">45</div><div class="stat-title">Total Students</div><div class="stat-subtitle">Students in selected class</div>
-</div>
-<div class="stat-card" style="--card-color:#25b981;--card-bg:#e5fbf1">
-<div class="stat-top"><div class="stat-icon">✅</div><span style="color:#159664;font-size:11px;font-weight:800">SUBMITTED</span></div>
-<div class="stat-number" id="submittedCount">0</div><div class="stat-title">Submitted Assignments</div><div class="stat-subtitle">Units marked as submitted</div>
-</div>
-<div class="stat-card" style="--card-color:#ffad45;--card-bg:#fff3df">
-<div class="stat-top"><div class="stat-icon">⏳</div><span style="color:#c28420;font-size:11px;font-weight:800">PENDING</span></div>
-<div class="stat-number" id="pendingCount">180</div><div class="stat-title">Pending Assignments</div><div class="stat-subtitle">Units not yet submitted</div>
-</div>
-<div class="stat-card" style="--card-color:#ed79b7;--card-bg:#ffedf6">
-<div class="stat-top"><div class="stat-icon">🌟</div><span style="color:#d85b9d;font-size:11px;font-weight:800">PROGRESS</span></div>
-<div class="stat-number" id="completionRate">0%</div><div class="stat-title">Completion Rate</div><div class="stat-subtitle">Overall unit submission percentage</div>
-</div>
-</section>
-<section class="progress-panel">
-<div class="progress-top"><h3>🚀 Class Assignment Progress</h3><span class="progress-percent" id="progressPercent">0%</span></div>
-<div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
-<div class="progress-caption" id="progressCaption">Let's start marking submissions to see progress!</div>
-</section>
-<div class="section-heading">
-<div><h2>📚 Your Subjects</h2><p>Select any subject card to manage its assignment records.</p></div>
-</div>
-<section class="subject-grid" id="subjectGrid"></section>
-<div class="section-heading">
-<div><h2>📝 Student Assignment Register</h2><p>Every student has four separate unit buttons. Mark submission and its date for each unit.</p></div>
-</div>
-<section class="table-panel">
-<div class="table-toolbar">
-<div><h3 id="tableTitle">B.Tech CSE Third A — Assignment Register</h3><p id="tableSubtitle">45 students · 4 units per student</p></div>
-<div class="toolbar-actions">
-<button class="btn btn-light" id="resetFilterBtn" type="button">↻ Clear Search</button>
-<button class="btn btn-primary" id="exportBtn" type="button">⬇ Export CSV</button>
-</div>
-</div>
-<div class="table-wrap">
-<table>
-<thead><tr><th>S.No.</th><th>Roll Number</th><th>Student Name</th><th>Unit 1</th><th>Unit 2</th><th>Unit 3</th><th>Unit 4</th><th>Overall Status</th></tr></thead>
-<tbody id="studentTableBody"></tbody>
-</table>
-</div>
-<div class="table-bottom"><span id="visibleCount">Showing 45 students</span><span>💜 Assignment Galaxy · Faculty Dashboard</span></div>
-</section>
-<footer class="footer">
-<strong>Assignment Galaxy</strong> — Faculty Assignment Management System ✨<br>
-Made with 💜 for smarter assignment tracking.<br>
-<span>Demo version: records are saved in this browser.</span>
-</footer>
-</main>
-</div>
-<!-- TOAST -->
-<div id="toast" role="status" aria-live="polite"></div>
-<!-- FIXED IN-PAGE SUBMISSION MODAL -->
-<div class="modal-overlay" id="submissionModal" aria-hidden="true">
-<div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-<div class="modal-icon" id="modalIcon">📝</div>
-<h2 id="modalTitle">Record Submission</h2>
-<p class="modal-description" id="modalDescription">Enter the date when the student submitted this assignment.</p>
-<div class="modal-details" id="modalDetails"></div>
-<label class="modal-date-label" id="modalDateLabel" for="submissionDateInput">📅 SUBMISSION DATE</label>
-<input class="modal-date-input" type="date" id="submissionDateInput">
-<div class="modal-warning" id="modalWarning">Please select a submission date.</div>
-<div class="modal-actions">
-<button type="button" class="modal-cancel" id="modalCancelBtn">Cancel</button>
-<button type="button" class="modal-confirm" id="modalConfirmBtn">✓ Mark Submitted</button>
-</div>
-</div>
-</div>
+<div id="modalBackdrop" class="modal-backdrop hidden"><div class="modal"><h3 id="modalTitle">Mark unit submitted</h3><p id="modalDescription">Choose the submission date.</p><label class="field"><span>Submission date</span><input type="date" id="submissionDate"></label><div class="modal-actions"><button class="btn secondary" id="cancelModal">Cancel</button><button class="btn primary" id="saveSubmission">Save submission</button></div></div></div>
+<div id="toast" class="toast hidden"></div>
 <script>
-"use strict";
-/* SUBJECT DATA */
-const subjects=[
-{name:"Engineering Mathematics",teacher:"Dr. Shikha Chandel",icon:"📐",color:"#8d70ed",bg:"#f0ebff"},
-{name:"Machine Learning",teacher:"Ass. Prof. Naman Sharma",icon:"🤖",color:"#4ba9e9",bg:"#e6f5ff"},
-{name:"Software Engineering",teacher:"Dr. Chandan",icon:"💻",color:"#ec77b6",bg:"#ffedf6"},
-{name:"Data Structure",teacher:"Akash Changra",icon:"🌳",color:"#28b991",bg:"#e6faf3"},
-{name:"C++ Programming",teacher:"Gandharv Parmar",icon:"⚙️",color:"#f0a640",bg:"#fff4df"},
-{name:"Digital Electronics",teacher:"Anshul Thakur",icon:"🔌",color:"#6f8df0",bg:"#edf0ff"},
-{name:"Quantitative Aptitude",teacher:"Nitesh",icon:"🧮",color:"#23bfc5",bg:"#e3fbfb"}
+const classes=[
+ {name:"B.Tech CSE Third A",icon:"💻",description:"B.Tech · Computer Science & Engineering"},
+ {name:"B.Tech CSE Third B",icon:"🧑‍💻",description:"B.Tech · Computer Science & Engineering"},
+ {name:"BCA Third A",icon:"🖥️",description:"Bachelor of Computer Applications"},
+ {name:"BCA Third B",icon:"💾",description:"Bachelor of Computer Applications"}
 ];
-/* STUDENT DATA */
-const rollSuffixes=[
-"033","044","049","079","231","232","243","252","261","297",
-"308","337","342","351","353","360","371","398","399","407",
-"409","461","465","493","510","585","618","629","655","661",
-"662","663","683","698","747","796","871","875","909","915",
-"922","951","980","985","1177"
+const cseTeachers=[
+ {subject:"Engineering Mathematics",name:"Dr. Shikha Chandel",icon:"📐",username:"shikha",password:"shikha123",practical:false},
+ {subject:"Machine Learning",name:"Ass. Prof. Naman Sharma",icon:"🤖",username:"naman",password:"naman123",practical:true},
+ {subject:"Software Engineering",name:"Dr. Chandan",icon:"💻",username:"chandan",password:"chandan123",practical:false},
+ {subject:"Data Structure",name:"Akash Changra",icon:"🌳",username:"akash",password:"akash123",practical:true},
+ {subject:"C++ Programming",name:"Gandharv Parmar",icon:"⚙️",username:"gandharv",password:"gandharv123",practical:true},
+ {subject:"Digital Electronics",name:"Anshul Thakur",icon:"🔌",username:"anshul",password:"anshul123",practical:false},
+ {subject:"Quantitative Aptitude",name:"Nitesh",icon:"🧮",username:"nitesh",password:"nitesh123",practical:false}
 ];
-const students=rollSuffixes.map(function(suffix,index){
-return{serial:index+1,roll:"H250"+suffix,name:"Student "+suffix};
-});
+const bcaATeachers=[
+ {subject:"Computer Fundamentals",name:"Ms. Meena Sharma (Demo)",icon:"🖥️",username:"meena",password:"meena123",practical:false},
+ {subject:"Database Management",name:"Mr. Rohit Verma (Demo)",icon:"🗄️",username:"rohit",password:"rohit123",practical:true},
+ {subject:"Web Development",name:"Ms. Pooja Thakur (Demo)",icon:"🌐",username:"pooja",password:"pooja123",practical:true},
+ {subject:"Mathematics",name:"Mr. Amit Kumar (Demo)",icon:"📐",username:"amit",password:"amit123",practical:false}
+];
+const bcaBTeachers=[
+ {subject:"Programming in C (Demo)",name:"Ms. Sonia Kapoor (Demo)",icon:"💻",username:"sonia",password:"sonia123",practical:true},
+ {subject:"Operating Systems (Demo)",name:"Mr. Vikas Rana (Demo)",icon:"⚙️",username:"vikas",password:"vikas123",practical:false},
+ {subject:"Computer Networks (Demo)",name:"Ms. Neha Sharma (Demo)",icon:"🌐",username:"neha",password:"neha123",practical:true},
+ {subject:"Business Communication (Demo)",name:"Mr. Rahul Singh (Demo)",icon:"📚",username:"rahul",password:"rahul123",practical:false}
+];
+const suffixes=["033","044","049","079","231","232","243","252","261","297","308","337","342","351","353","360","371","398","399","407","409","461","465","493","510","585","618","629","655","661","662","663","683","698","747","796","871","875","909","915","922","951","980","985","1177"];
+const originalStudents=suffixes.map(s=>({roll:"H250"+s,name:"Student "+s}));
+const demoStudents=Array.from({length:10},(_,i)=>({roll:"DEMO-"+String(i+1).padStart(3,"0"),name:["Aarav Sharma","Ananya Verma","Vivaan Thakur","Diya Kapoor","Aditya Kumar","Isha Rana","Arjun Singh","Meera Sharma","Reyansh Gupta","Saanvi Patel"][i]}));
 const STORAGE_KEY="assignmentGalaxyRecordsV1";
-let records={};
-let toastTimer=null;
-let pendingAction=null;
-/* LOCAL STORAGE */
-function loadRecords(){
-try{
-const saved=localStorage.getItem(STORAGE_KEY);
-if(saved){
-const parsed=JSON.parse(saved);
-if(parsed&&typeof parsed==="object")records=parsed;
+let selectedClass="",selectedTeacher=null,activeTeacher=null,selectedWorkType="assignment",modalTarget=null;
+const $=id=>document.getElementById(id);
+function teachersForClass(){if(selectedClass.startsWith("B.Tech CSE"))return cseTeachers;if(selectedClass==="BCA Third A")return bcaATeachers;return bcaBTeachers}
+function studentsForClass(){return selectedClass==="B.Tech CSE Third A"?originalStudents:demoStudents}
+function records(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}")}catch(e){return {}}}
+function saveRecords(data){localStorage.setItem(STORAGE_KEY,JSON.stringify(data))}
+function recordKey(student,unit){return [selectedClass,activeTeacher.username,activeTeacher.subject,selectedWorkType,student.roll,"unit"+unit].join("::")}
+function showOnly(page){["classPage","teacherPage","loginPage","dashboardPage"].forEach(id=>$(id).classList.toggle("hidden",id!==page));$("topActions").classList.toggle("hidden",page!=="dashboardPage"&&page!=="loginPage")}
+function showClasses(){selectedTeacher=null;activeTeacher=null;showOnly("classPage");renderClasses()}
+function showTeachers(){selectedTeacher=null;activeTeacher=null;showOnly("teacherPage");$("selectedClassCrumb").textContent=selectedClass;renderTeachers()}
+function showLogin(teacher){
+ selectedTeacher=teacher;
+ showOnly("loginPage");
+ $("loginCrumb").textContent=teacher.name;
+ $("loginAvatar").textContent=teacher.icon;
+ $("loginTeacherName").textContent=teacher.name;
+ $("loginSubjectName").textContent=teacher.subject;
+ $("credentialHint").textContent="Username: "+teacher.username+" · Password: "+teacher.password;
+ $("loginError").textContent="";
+ $("loginForm").reset();
+
+ /* Keep password hidden whenever the login page opens */
+ $("password").type="password";
+ $("togglePassword").textContent="👁️";
+ $("togglePassword").setAttribute("aria-label","Show password");
+ $("togglePassword").setAttribute("aria-pressed","false");
 }
-}catch(error){
-console.error("Could not load records:",error);
-records={};
-}
-}
-function saveRecords(){
-try{
-localStorage.setItem(STORAGE_KEY,JSON.stringify(records));
-}catch(error){
-console.error("Could not save records:",error);
-showToast("⚠️ Browser storage is unavailable.");
-}
-}
-/* RECORD HELPERS */
-function getRecordKey(className,subjectName,rollNumber,unitNumber){
-return[className,subjectName,rollNumber,"unit"+unitNumber].join("::");
-}
-function getRecord(className,subjectName,rollNumber,unitNumber){
-return records[getRecordKey(className,subjectName,rollNumber,unitNumber)]||null;
-}
-function getSelectedClass(){return document.getElementById("classSelect").value}
-function getSelectedSubject(){return document.getElementById("subjectSelect").value}
-function getClassStudents(className){
-return className==="B.Tech CSE Third A"?students:[];
-}
-/* INITIALIZATION */
-function buildSubjectDropdown(){
-const select=document.getElementById("subjectSelect");
-select.innerHTML="";
-subjects.forEach(function(subject){
-const option=document.createElement("option");
-option.value=subject.name;
-option.textContent=subject.name+" — "+subject.teacher;
-select.appendChild(option);
+function renderClasses(){$("classGrid").innerHTML=classes.map(c=>`<button class="pick-card" data-class="${c.name}"><div class="pick-icon">${c.icon}</div><h3>${c.name}</h3><p>${c.description}</p><p style="margin-top:15px;color:#6c63ff;font-weight:800">View teachers →</p></button>`).join("");document.querySelectorAll("[data-class]").forEach(b=>b.addEventListener("click",()=>{selectedClass=b.dataset.class;showTeachers()}))}
+function renderTeachers(){const list=teachersForClass();$("teacherGrid").innerHTML=list.map((t,i)=>`<button class="pick-card teacher-card" data-teacher="${i}"><div class="avatar">${t.icon}</div><div><h3>${t.name}</h3><p>${t.subject}</p></div><span class="arrow">›</span></button>`).join("");document.querySelectorAll("[data-teacher]").forEach(b=>b.addEventListener("click",()=>showLogin(list[Number(b.dataset.teacher)])))}
+
+/* Added: teacher can choose to show or hide the password */
+$("togglePassword").addEventListener("click",()=>{
+ const passwordInput=$("password");
+ const toggleButton=$("togglePassword");
+ const shouldShow=passwordInput.type==="password";
+
+ passwordInput.type=shouldShow?"text":"password";
+ toggleButton.textContent=shouldShow?"🙈":"👁️";
+ toggleButton.setAttribute("aria-label",shouldShow?"Hide password":"Show password");
+ toggleButton.setAttribute("aria-pressed",String(shouldShow));
 });
+
+$("loginForm").addEventListener("submit",e=>{e.preventDefault();if($("username").value.trim()===selectedTeacher.username&&$("password").value===selectedTeacher.password){activeTeacher=selectedTeacher;selectedWorkType="assignment";showDashboard();toast("Login successful!")}else{$("loginError").textContent="Incorrect username or password. Please try again."}});
+function setWorkType(type){if(type==="practical"&&!activeTeacher.practical)return;selectedWorkType=type;$("assignmentTab").className="btn "+(type==="assignment"?"primary":"secondary");$("practicalTab").className="btn "+(type==="practical"?"primary":"secondary")+(activeTeacher.practical?"":" hidden");renderDashboard()}
+$("assignmentTab").addEventListener("click",()=>setWorkType("assignment"));$("practicalTab").addEventListener("click",()=>setWorkType("practical"));
+function showDashboard(){showOnly("dashboardPage");$("dashCrumb").textContent=activeTeacher.name;$("welcomeTitle").textContent="Welcome, "+activeTeacher.name+" 👋";$("welcomeSub").textContent=activeTeacher.subject+" · "+selectedClass;$("practicalTab").classList.toggle("hidden",!activeTeacher.practical);setWorkType("assignment")}
+function renderDashboard(){
+ const data=records(),students=studentsForClass(),query=$("searchInput").value.trim().toLowerCase(),unitF=$("unitFilter").value,statusF=$("statusFilter").value;
+ const allCount=students.length*4,doneCount=students.reduce((n,s)=>n+[1,2,3,4].filter(u=>data[recordKey(s,u)]).length,0);
+ $("totalStudents").textContent=students.length;$("submittedCount").textContent=doneCount;$("pendingCount").textContent=allCount-doneCount;$("completionRate").textContent=Math.round(doneCount/allCount*100)+"%";$("progressText").textContent=doneCount+" of "+allCount+" "+(selectedWorkType==="assignment"?"assignment":"practical")+" unit submissions completed";$("progressBar").style.width=(doneCount/allCount*100)+"%";
+ document.querySelector("#dashboardPage .subject-banner h3").textContent=(selectedWorkType==="assignment"?"Assignment":"Practical")+" progress";
+ const filtered=students.filter(s=>(s.name+" "+s.roll).toLowerCase().includes(query)&&[1,2,3,4].some(u=>(unitF==="all"||String(u)===unitF)&&(statusF==="all"||(statusF==="submitted"&&data[recordKey(s,u)])||(statusF==="pending"&&!data[recordKey(s,u)]))));
+ $("studentRows").innerHTML=filtered.length?filtered.map(s=>{let submitted=0;const units=[1,2,3,4].map(u=>{const rec=data[recordKey(s,u)];if(rec)submitted++;if((unitF!=="all"&&String(u)!==unitF)||(statusF==="submitted"&&!rec)||(statusF==="pending"&&rec))return `<td>—</td>`;return `<td><button class="unit-btn ${rec?"done":""}" data-roll="${s.roll}" data-unit="${u}">${rec?"✓ "+escapeHTML(rec.date):"＋ Mark"}</button></td>`}).join("");return `<tr><td><strong>${s.roll}</strong></td><td>${s.name}</td>${units}<td><span class="status ${submitted===4?"done":"pending"}">${submitted}/4 units</span></td></tr>`}).join(""):`<tr><td colspan="7" class="empty">No student records match your search or filters.</td></tr>`;
+ document.querySelectorAll("[data-roll]").forEach(b=>b.addEventListener("click",()=>toggleSubmission(b.dataset.roll,Number(b.dataset.unit))));
 }
-function setTodayDate(){
-document.getElementById("todayDate").textContent=new Date().toLocaleDateString("en-IN",{
-day:"numeric",month:"short",year:"numeric"
-});
-}
-function renderAll(){
-buildSubjectCards();
-updateStats();
-renderTable();
-}
-function startApp(){
-const intro=document.getElementById("intro");
-const app=document.getElementById("app");
-loadRecords();
-buildSubjectDropdown();
-setTodayDate();
-renderAll();
-window.setTimeout(function(){
-intro.classList.add("hide");
-app.classList.add("visible");
-},2600);
-}
-/* STATISTICS */
-function getSubjectStats(className,subjectName){
-const classStudents=getClassStudents(className);
-const totalStudents=classStudents.length;
-const totalAssignments=totalStudents*4;
-let submitted=0;
-classStudents.forEach(function(student){
-for(let unit=1;unit<=4;unit++){
-const record=getRecord(className,subjectName,student.roll,unit);
-if(record&&record.submitted)submitted++;
-}
-});
-const pending=totalAssignments-submitted;
-const percentage=totalAssignments>0?Math.round(submitted/totalAssignments*100):0;
-return{totalStudents,totalAssignments,submitted,pending,percentage};
-}
-function updateStats(){
-const className=getSelectedClass();
-const subjectName=getSelectedSubject();
-const stats=getSubjectStats(className,subjectName);
-document.getElementById("totalStudents").textContent=stats.totalStudents;
-document.getElementById("submittedCount").textContent=stats.submitted;
-document.getElementById("pendingCount").textContent=stats.pending;
-document.getElementById("completionRate").textContent=stats.percentage+"%";
-document.getElementById("progressPercent").textContent=stats.percentage+"%";
-document.getElementById("progressFill").style.width=stats.percentage+"%";
-document.getElementById("heroStudentCount").textContent=stats.totalStudents+" Students";
-document.getElementById("progressCaption").textContent=stats.submitted+" submitted out of "+stats.totalAssignments+" total unit assignments.";
-document.getElementById("tableTitle").textContent=className+" — Assignment Register";
-document.getElementById("tableSubtitle").textContent=stats.totalStudents+" students · 4 units per student · "+subjectName;
-}
-/* SUBJECT CARDS */
-function buildSubjectCards(){
-const grid=document.getElementById("subjectGrid");
-const className=getSelectedClass();
-const selectedSubject=getSelectedSubject();
-grid.innerHTML="";
-subjects.forEach(function(subject,index){
-const stats=getSubjectStats(className,subject.name);
-const isActive=subject.name===selectedSubject;
-const card=document.createElement("article");
-card.className="subject-card"+(isActive?" active":"");
-const top=document.createElement("div");
-top.className="subject-card-top";
-const icon=document.createElement("div");
-icon.className="subject-icon";
-icon.style.background=subject.bg;
-icon.textContent=subject.icon;
-const number=document.createElement("span");
-number.className="subject-number";
-number.textContent="SUBJECT "+String(index+1).padStart(2,"0");
-top.append(icon,number);
-const title=document.createElement("h3");
-title.textContent=subject.name;
-const teacher=document.createElement("p");
-teacher.className="subject-teacher";
-teacher.textContent="👩‍🏫 "+subject.teacher;
-const progress=document.createElement("div");
-progress.className="subject-progress";
-const fill=document.createElement("div");
-fill.className="subject-progress-fill";
-fill.style.width=stats.percentage+"%";
-fill.style.background=subject.color;
-progress.appendChild(fill);
-const footer=document.createElement("div");
-footer.className="subject-footer";
-const submitted=document.createElement("span");
-submitted.textContent=stats.submitted+"/"+stats.totalAssignments+" submitted";
-const button=document.createElement("button");
-button.className="open-subject";
-button.type="button";
-button.textContent=isActive?"Selected ✓":"Open →";
-button.addEventListener("click",function(){
-document.getElementById("subjectSelect").value=subject.name;
-renderAll();
-document.querySelector(".table-panel").scrollIntoView({behavior:"smooth",block:"start"});
-});
-footer.append(submitted,button);
-card.append(top,title,teacher,progress,footer);
-grid.appendChild(card);
-});
-}
-/* STUDENT TABLE */
-function renderTable(){
-const tbody=document.getElementById("studentTableBody");
-const className=getSelectedClass();
-const subjectName=getSelectedSubject();
-const search=document.getElementById("searchInput").value.trim().toLowerCase();
-tbody.innerHTML="";
-const classStudents=getClassStudents(className);
-const filteredStudents=classStudents.filter(function(student){
-return student.roll.toLowerCase().includes(search)||
-student.name.toLowerCase().includes(search)||
-String(student.serial).includes(search);
-});
-if(classStudents.length===0){
-showEmptyState(tbody,"🏫","No Student Records Added Yet","This class is available in the dropdown, but its student roll numbers have not been added yet. B.Tech CSE Third A currently contains all 45 student records.");
-document.getElementById("visibleCount").textContent="Showing 0 students";
-return;
-}
-if(filteredStudents.length===0){
-showEmptyState(tbody,"🔎","No Matching Student Found","Try searching with a different roll number.");
-document.getElementById("visibleCount").textContent="Showing 0 students";
-return;
-}
-filteredStudents.forEach(function(student){
-const row=document.createElement("tr");
-const serialCell=document.createElement("td");
-serialCell.className="serial";
-serialCell.textContent=student.serial;
-row.appendChild(serialCell);
-const rollCell=document.createElement("td");
-rollCell.className="roll-number";
-rollCell.textContent=student.roll;
-row.appendChild(rollCell);
-const nameCell=document.createElement("td");
-nameCell.className="student-name";
-nameCell.textContent=student.name;
-row.appendChild(nameCell);
-let submittedUnits=0;
-for(let unit=1;unit<=4;unit++){
-const record=getRecord(className,subjectName,student.roll,unit);
-const isSubmitted=Boolean(record&&record.submitted);
-if(isSubmitted)submittedUnits++;
-const cell=document.createElement("td");
-cell.className="unit-cell";
-const button=document.createElement("button");
-button.type="button";
-button.className="unit-button"+(isSubmitted?" submitted":"");
-button.textContent=isSubmitted?"✓ Submitted":"☐ Mark Submitted";
-button.title=isSubmitted?"Click to mark this unit as pending":"Click to record this unit's submission";
-button.addEventListener("click",function(){
-toggleSubmission(className,subjectName,student.roll,unit);
-});
-const date=document.createElement("div");
-date.className="unit-date";
-date.textContent=isSubmitted?"📅 "+record.date:"";
-const statusLabel=document.createElement("span");
-statusLabel.className="unit-status-label "+(isSubmitted?"done":"waiting");
-statusLabel.textContent=isSubmitted?"Submission recorded":"Not submitted yet";
-cell.append(button,date,statusLabel);
-row.appendChild(cell);
-}
-const statusCell=document.createElement("td");
-const status=document.createElement("span");
-status.className="row-status"+(submittedUnits===4?" complete":" pending");
-status.textContent=submittedUnits===4?"✓ All Complete":submittedUnits+"/4 Submitted";
-statusCell.appendChild(status);
-row.appendChild(statusCell);
-tbody.appendChild(row);
-});
-document.getElementById("visibleCount").textContent="Showing "+filteredStudents.length+" of "+classStudents.length+" students";
-}
-function showEmptyState(tbody,icon,title,message){
-const row=document.createElement("tr");
-const cell=document.createElement("td");
-cell.colSpan=8;
-const box=document.createElement("div");
-box.className="empty-state";
-const emoji=document.createElement("div");
-emoji.className="empty-icon";
-emoji.textContent=icon;
-const heading=document.createElement("h3");
-heading.textContent=title;
-const paragraph=document.createElement("p");
-paragraph.textContent=message;
-box.append(emoji,heading,paragraph);
-cell.appendChild(box);
-row.appendChild(cell);
-tbody.appendChild(row);
-}
-/* FIXED SUBMISSION SYSTEM: USES IN-PAGE MODAL, NOT PROMPT/CONFIRM */
-function toggleSubmission(className,subjectName,rollNumber,unitNumber){
-const key=getRecordKey(className,subjectName,rollNumber,unitNumber);
-const existing=records[key];
-pendingAction={key,className,subjectName,rollNumber,unitNumber};
-const modal=document.getElementById("submissionModal");
-const icon=document.getElementById("modalIcon");
-const title=document.getElementById("modalTitle");
-const description=document.getElementById("modalDescription");
-const details=document.getElementById("modalDetails");
-const dateInput=document.getElementById("submissionDateInput");
-const dateLabel=document.getElementById("modalDateLabel");
-const confirmButton=document.getElementById("modalConfirmBtn");
-const warning=document.getElementById("modalWarning");
-warning.classList.remove("show");
-details.innerHTML=
-"<strong>Student:</strong> "+escapeHTML(rollNumber)+"<br>"+
-"<strong>Subject:</strong> "+escapeHTML(subjectName)+"<br>"+
-"<strong>Unit:</strong> "+unitNumber+"<br>"+
-"<strong>Class:</strong> "+escapeHTML(className);
-if(existing&&existing.submitted){
-icon.textContent="↩️";
-title.textContent="Undo Submission?";
-description.textContent="Do you want to mark this assignment as pending again? Its saved submission date will be removed.";
-dateInput.style.display="none";
-dateLabel.style.display="none";
-confirmButton.textContent="↩ Mark Pending";
-confirmButton.dataset.action="unmark";
-}else{
-icon.textContent="📝";
-title.textContent="Record Submission";
-description.textContent="Select the date when this student submitted this unit. The date will appear below the green button.";
-dateInput.style.display="block";
-dateLabel.style.display="block";
-confirmButton.textContent="✓ Mark Submitted";
-confirmButton.dataset.action="submit";
-dateInput.value=getLocalISODate();
-}
-modal.classList.add("open");
-modal.setAttribute("aria-hidden","false");
-document.body.style.overflow="hidden";
-if(!(existing&&existing.submitted)){
-setTimeout(function(){dateInput.focus()},100);
-}
-}
-function escapeHTML(value){
-return String(value).replace(/[&<>"']/g,function(char){
-return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char];
-});
-}
-function getLocalISODate(){
-const now=new Date();
-const year=now.getFullYear();
-const month=String(now.getMonth()+1).padStart(2,"0");
-const day=String(now.getDate()).padStart(2,"0");
-return year+"-"+month+"-"+day;
-}
-function formatDisplayDate(isoDate){
-const parts=isoDate.split("-");
-if(parts.length!==3)return isoDate;
-const date=new Date(Number(parts[0]),Number(parts[1])-1,Number(parts[2]));
-return date.toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"});
-}
-function closeSubmissionModal(){
-const modal=document.getElementById("submissionModal");
-modal.classList.remove("open");
-modal.setAttribute("aria-hidden","true");
-document.body.style.overflow="";
-pendingAction=null;
-document.getElementById("modalWarning").classList.remove("show");
-}
-function confirmSubmissionAction(){
-if(!pendingAction)return;
-const action=document.getElementById("modalConfirmBtn").dataset.action;
-const details=pendingAction;
-const warning=document.getElementById("modalWarning");
-if(action==="unmark"){
-delete records[details.key];
-saveRecords();
-closeSubmissionModal();
-renderAll();
-showToast("↩ "+details.rollNumber+" — Unit "+details.unitNumber+" marked as pending.");
-return;
-}
-const dateInput=document.getElementById("submissionDateInput");
-const selectedDate=dateInput.value;
-if(!selectedDate){
-warning.textContent="Please select a submission date.";
-warning.classList.add("show");
-dateInput.focus();
-return;
-}
-const displayDate=formatDisplayDate(selectedDate);
-records[details.key]={
-submitted:true,
-date:displayDate,
-isoDate:selectedDate
-};
-saveRecords();
-closeSubmissionModal();
-renderAll();
-showToast("✅ "+details.rollNumber+" — Unit "+details.unitNumber+" submitted on "+displayDate);
-}
-/* CSV EXPORT */
-function exportCSV(){
-const className=getSelectedClass();
-const subjectName=getSelectedSubject();
-const classStudents=getClassStudents(className);
-if(classStudents.length===0){
-showToast("⚠️ There are no student records to export for this class.");
-return;
-}
-const rows=[[
-"S.No.","Class","Subject","Roll Number","Student Name",
-"Unit 1 Status","Unit 1 Date","Unit 2 Status","Unit 2 Date",
-"Unit 3 Status","Unit 3 Date","Unit 4 Status","Unit 4 Date",
-"Overall Status"
-]];
-classStudents.forEach(function(student){
-let completed=0;
-const row=[student.serial,className,subjectName,student.roll,student.name];
-for(let unit=1;unit<=4;unit++){
-const record=getRecord(className,subjectName,student.roll,unit);
-if(record&&record.submitted){
-completed++;
-row.push("Submitted",record.date);
-}else{
-row.push("Pending","");
-}
-}
-row.push(completed===4?"All Complete":completed+"/4 Submitted");
-rows.push(row);
-});
-const csv=rows.map(function(row){
-return row.map(function(value){
-const text=String(value==null?"":value);
-return '"'+text.replace(/"/g,'""')+'"';
-}).join(",");
-}).join("\r\n");
-const blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"});
-const url=URL.createObjectURL(blob);
-const link=document.createElement("a");
-link.href=url;
-const safeClass=className.replace(/[^a-z0-9]+/gi,"_");
-const safeSubject=subjectName.replace(/[^a-z0-9]+/gi,"_");
-link.download=safeClass+"_"+safeSubject+"_Assignments.csv";
-document.body.appendChild(link);
-link.click();
-link.remove();
-setTimeout(function(){URL.revokeObjectURL(url)},1000);
-showToast("⬇ CSV file downloaded successfully!");
-}
-/* TOAST */
-function showToast(message){
-const toast=document.getElementById("toast");
-toast.textContent=message;
-toast.classList.add("show");
-if(toastTimer)clearTimeout(toastTimer);
-toastTimer=setTimeout(function(){
-toast.classList.remove("show");
-},2800);
-}
-/* EVENT LISTENERS */
-document.getElementById("classSelect").addEventListener("change",renderAll);
-document.getElementById("subjectSelect").addEventListener("change",renderAll);
-document.getElementById("searchInput").addEventListener("input",renderTable);
-document.getElementById("resetFilterBtn").addEventListener("click",function(){
-document.getElementById("searchInput").value="";
-renderTable();
-showToast("🔎 Search cleared!");
-});
-document.getElementById("exportBtn").addEventListener("click",exportCSV);
-document.getElementById("modalCancelBtn").addEventListener("click",closeSubmissionModal);
-document.getElementById("modalConfirmBtn").addEventListener("click",confirmSubmissionAction);
-/* Close the modal by tapping outside it */
-document.getElementById("submissionModal").addEventListener("click",function(event){
-if(event.target===this)closeSubmissionModal();
-});
-/* Escape key closes the modal */
-document.addEventListener("keydown",function(event){
-if(event.key==="Escape"){
-const modal=document.getElementById("submissionModal");
-if(modal.classList.contains("open"))closeSubmissionModal();
-}
-});
-/* START */
-if(document.readyState==="loading"){
-document.addEventListener("DOMContentLoaded",startApp);
-}else{
-startApp();
-}
+function escapeHTML(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function toggleSubmission(roll,unit){const student=studentsForClass().find(s=>s.roll===roll);const data=records(),key=recordKey(student,unit);if(data[key]){if(confirm("Remove this submission record?")){delete data[key];saveRecords(data);renderDashboard();toast("Submission removed.")}return}modalTarget={student,unit};$("modalTitle").textContent="Mark unit "+unit+" submitted";$("modalDescription").textContent=student.name+" · "+student.roll+" · "+activeTeacher.subject+" · "+(selectedWorkType==="assignment"?"Assignment":"Practical");$("submissionDate").value=new Date().toISOString().slice(0,10);$("modalBackdrop").classList.remove("hidden")}
+$("cancelModal").addEventListener("click",()=>$("modalBackdrop").classList.add("hidden"));
+$("saveSubmission").addEventListener("click",()=>{if(!modalTarget||!$("submissionDate").value){toast("Please choose a date.");return}const data=records(),key=recordKey(modalTarget.student,modalTarget.unit);data[key]={date:$("submissionDate").value,className:selectedClass,subject:activeTeacher.subject,teacher:activeTeacher.name,teacherUsername:activeTeacher.username,workType:selectedWorkType,roll:modalTarget.student.roll,student:modalTarget.student.name,unit:modalTarget.unit};saveRecords(data);$("modalBackdrop").classList.add("hidden");renderDashboard();toast("Submission saved successfully!")});
+["unitFilter","statusFilter","searchInput"].forEach(id=>$(id).addEventListener(id==="searchInput"?"input":"change",renderDashboard));
+$("exportBtn").addEventListener("click",()=>{const data=records(),students=studentsForClass();let csv=[["Class","Teacher","Subject","Work Type","Roll Number","Student Name","Unit","Status","Submission Date"]];students.forEach(s=>[1,2,3,4].forEach(u=>{const rec=data[recordKey(s,u)];csv.push([selectedClass,activeTeacher.name,activeTeacher.subject,selectedWorkType,s.roll,s.name,"Unit "+u,rec?"Submitted":"Pending",rec?rec.date:""])}));const text=csv.map(row=>row.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(",")).join("\r\n");const blob=new Blob(["\ufeff"+text],{type:"text/csv;charset=utf-8;"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=(selectedClass+"_"+activeTeacher.subject+"_"+selectedWorkType).replace(/[^a-z0-9]+/gi,"_")+".csv";a.click();URL.revokeObjectURL(url);toast("CSV exported!")});
+$("logoutBtn").addEventListener("click",()=>{activeTeacher=null;selectedTeacher=null;showTeachers();toast("Logged out")});
+let toastTimer;function toast(message){$("toast").textContent=message;$("toast").classList.remove("hidden");clearTimeout(toastTimer);toastTimer=setTimeout(()=>$("toast").classList.add("hidden"),2400)}
+renderClasses();setTimeout(()=>$("intro").classList.add("gone"),2600);
 </script>
 </body>
 </html>
